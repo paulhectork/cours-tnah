@@ -332,6 +332,3 @@ Interaction à 3 parties pour chaque utilisateurice:
 
 ***Exercice vacances* ~ faire la slide 12 du diapo cours-git chapitre 4**
 
-
----
-**mon token : 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** (valable jusqu'au 25 décembre)
