@@ -328,3 +328,269 @@ dépendance à installer via `pip install`
 
 **Les tableaux - `terminaltables`**
 - On peut facilement formater des tableaux avec des librairies comme terminaltables
+
+
+---
+# `FLASK` - CRÉER UNE APPLICATION WEB
+https://flask.palletsprojects.com/en/2.0.x/
+
+**bases**
+- **flask** : un framework et une librairie pour le développement d'application web en Python. 
+	- concurrent principal : django, +utilisé mais +lourd 
+	- flask est parfait pour de petits projets ou des projets simples en général.
+	- **bases utilisées par flask** :
+		- `jinja`, pour la création de templates html
+		- `werkzeug`, un toolkit WSGI (web server gateway interface, spécifiant le protocole de communication entre serveur web et applications)
+- **tutoriel** : Le Tutorial de Miguel Grinberg est une référence ( https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world )
+- flask est un package python, et comme beaucoup de package Python, il est disponible au téléchargement via PyPI (Python Package Index) et s'installe via la commande `pip install flask`. 
+
+
+---
+**créer une application**
+- une appli Flask = **un/des scripts/fonctions python qui s’activent** quand l’usager.ère se connecte à une route
+- importer la **classe d’objet Flask** : 
+	- `from flask import Flask`
+- **créer un objet Flask** et l’attribuer à une variable ; cet objet est accessible sur le navigateur ; elle prend obligatoirement un nom d’appli en argument (permet de faire tourner plusieurs applications sur un seul serveur) 
+	- `app = Flask(‘appname’)`
+- **définir une route** activant l’application :
+	- `@app.route(‘url’)`
+- **lancer un serveur** pour faire tourner l’application : 
+	- `app.run()`
+
+
+---
+**routes et définition de routes à paramètres**
+
+https://flask.palletsprojects.com/en/2.0.x/quickstart/#routing
+- **route = chemin vers une page** dans une application web
+- **créer une application à plusieurs pages** dans une application : 
+	- chaque décorateur `@app.route(‘url’)` définit un chemin auquel est associé une fonction
+	- les différentes fonctions de l’application s’exécuteront quand leur url sera appelé :
+     ```
+		@app.route('/')
+		def index():
+		    return 'Index Page'
+
+		@app.route('/hello')
+		def hello():
+		    return 'Hello, World'
+  ```
+- **variables** : une partie de route peut être assignée à une variable qui est passée à la fonction :
+	- **syntaxe** : `@app.route(‘/url/<variable_name>’)` définit une variable ‘variable_name’ à la fin de la route de l’application
+	- *exemple : `@app.route('/places/<placeid>')` permet de créer une variable placeid : quand l’utilisateur entre un `placeid` dans l’url sur le navigateur, celui-ci est stocké dans la variable `placeid`*
+- **typer une route** : 
+	- **syntaxe** : `@app.route(‘/url/<datatype:variable_name>’)` 
+	- **types autorisés** par flask : `str`, `int`, `float`, `path` (chemin de fichier), `any` (n’importe quelle valeur), `uuid` (chaîne uuid)
+	- *exemple : `@app.route("/places/<int:place_id>")` définit une variable ‘place_id’ qui doit être un nombre entier*
+
+
+---
+**templates `jinja` - les bases**
+- permettent de **lier du html à des fonctions** ; le fichier html est lu par le framework et complété par des informations que l’on fournit au framework
+- Flask utilise **Jinja** pour générer des templates ; utilisation des templates : E de fichiers HTML que l’on rédige comme on veut et que l’on lie à son script Python
+- la fonction **`render_template`** permet de lier un template html à une route :
+	- **syntaxe** : `render_template(‘pathway-to-file’, named arguments)`, avec
+		- comme *premier argument*(`pathway-to-file`), le chemin vers le fichier html depuis le dossier `templates`
+		- comme *`named-arguments`*, des variables définies dans la fonction et qui sont passées à la template
+	- **importer fonction** : `from flask import render_template`
+	- **appeler la fonction** avec `return` : `return render_template("accueil.html", nom="Gazetteer")`
+
+
+---
+**templates `jinja` – les types de données**
+- templates peuvent s’utiliser avec plusieurs **types de données** : listes, dictionnaires… 
+- on peut **naviguer un itérable** avec le template, pour retourner seulement certaines données pertinentes
+	- **syntaxe** – naviguer dans des variables : 
+		- globalement, la syntaxe est la **même** que avec python : `nom_liste[0]` retournerait le 1er élément d’une liste
+        - cas particulier des **dictionnaires** : on peut naviguer dans un dictionnaire avec `[]` comme dans python ou avec `.` : `ville.nom` = `ville[nom]` = la valeur de la clé ‘nom’ dans le dictionnaire ‘ville’
+
+
+---
+**templates `jinja` - la fonction `length`**
+- **le pipe `|`** sert à appeler des fonctions de Jinja sur des variables (et les variables sont prises en paramètre des fonctions jinja)
+- *exemple : `{{lieux|length}}` : la fonction length est appelée sur la variable lieux*
+
+
+---
+**templates `jinja` - les conditions et les boucles
+
+**conditions**
+- **syntaxe** : `{% if … %}`  `{% elif … %}`  `{% else %}`  `{% endif %}` (endif met fin à la structure conditionnelle)
+	- à part les `{%%}`, les conditions s’écrivent **comme en python**
+- on peut **combiner les conditions** avec `and`, comme en python
+- quelques **conditions utiles** :
+	- vérifier qu’une variable est **définie** (attention, une variable peut être définie et vide) ; `{% if var_name is defined %}`
+	- vérifier qu’une variable **n’est pas vide** : `{% if var_name|length %}`
+	- vérifier qu’une variable est **true** : `{% if var_name is sameas true %}`
+	- on peut **combiner** les conditions, comme en python : `{% if var_name is defined and var_name|length%}` vérifie qu’une variable est définie et qu’elle n’est pas vide
+
+**boucles**
+- **boucles dans des templates** : `{% for … in … %} … {% endfor %}`
+
+
+---
+**templates `jinja` - construire des url et lier des pages avec `url_for()`**
+
+**`url_for(endpoint, **values)`** permet de générer un url vers une cible avec la méthode spécifiée
+- **`endpoint`** (string) : la cible à laquelle renvoie l’URL, soit le nom de la fonction que l’on veut activer avec `url_for()`
+- **`**values`** (key=value) : arguments nécessaires à la construction de l’URL, pour faire passer des arguments à la fonction à laquelle renvoie url_for()
+	- **syntaxe** : `arg_name=value`, avec arg_name le nom d’un argument tel qu’il a été défini dans la fonction à laquelle renvoie url_for
+	- lier vers un **fichier statique** : `url_for(‘static’, filename=’path/to/filename/from/static’)`
+- *exemple simplifié : si on a une fonction `ma_fonction(a, b, c)`, alors on peut créer une route vers cette fonction et lui donner comme arguments 1, 2, 3 avec `url_for(ma_fonction, a=1, b=2, c=3)`*
+- *exemple (issu de cours-flask/exemple7) : `url_for(‘lieu’, place_id=lieu_id)` 
+	- tldr : permet de générer un lien vers la fonction `lieu(place_id)` et de faire passer `lieu_id` comme argument de cette fonction
+	- permet de générer une route vers la fonction `lieu` (une fonction qui prend un argument `place_id` qui est une clé de dictionnaire et qui retourne la valeur associée à la clé) et de donner à `plaxe_id` la valeur de `lieu_id`, une variable définie dans une boucle
+	- effet : `url_for()` permet de créer un index qui, en bouclant sur un dictionnaire, associe à chaque clé du dictionnaire un lien vers une page contenant les valeurs associées à la clé (les infos sur une ville)*
+
+
+---
+**templates `jinja` - lier des blocs, héritage, `extends` et `include`**
+- **les blocs** : la composition d’une page web est faite de blocs, avec un bloc principal qui se retrouve sur toutes les pages (header, menu, footer) et des blocs secondaires et qui s’intègrent dans ce squelette
+- **fonctionnement** : un bloc d’import appelle un bloc d’accueil dans lequel il viendra s’intégrer (`extends`), ou inversement (`include`) ; on utilise surtout les `extends`
+- **la définition de blocs**: `{% block block-name %} <contenu-en-html> {% endblock %}`
+- **`extends` – fonctionnement** : créer un conteneur avec de l’espace pour les blocs d’import et créer des blocs d’import qui revoient au conteneur avec `extends`
+	- créer un **template pour le bloc conteneur** 
+		- avec des éléments dans lesquels on intègre les blocs d’import : syntaxe : entre 2 balises, `{% block path/to/block %}{%endblock%}`
+	- créer un **template pour les blocs d’import** :
+		- au début du template, spécifier le template dans lequel le bloc d’import s’intègre : `{% extends path/to/bloc-accueil %}` ; avec extends, le bloc d’import appelle le bloc d’accueil
+		- ensuite, encadrer le contenu html du bloc d’import par `{% block nom_bloc_import%}` et `{% endblock %}`
+	- exemple où le bloc accueil s’intègre dans conteneur : 
+		- bloc conteneur dans un fichier :
+        ```
+			<html>
+				<head><title>{% block titre %}{%endblock%}</title></html>
+				<body><div>{% block corps %}{%endblock%}</div></body>
+			</html>
+		```
+		- blocs d’import dans un autre fichier :
+        ```
+			<html>
+			{% extends ‘conteneur.html’ %}
+			{% block titre %} [contenu html] {% endblock %}
+			{% block corps %} [contenu html] {% endblock %}
+      </html>
+	  ```
+
+- **`include` – fonctionnement** : on peut appeler des éléments à inclure dans des templates html ; c’est l’inverse de extends (le fichier principal est le conteneur)
+	- système **moins utilisé** aujourd’hui (peut poser des problèmes) ; on s’en sert surtout pour les sous-éléments incrustables sur plusieurs pages (permet d’inclure des balises de métadonnées, par ex)
+	- **syntaxe** : `{% include "chemin/vers/inclusion/html" %}`
+		- pas la peine de spécifier la fin de l’inclusion
+        - le chemin doit renvoyer à un fichier html qui ne contient pas de syntaxe particulière
+
+- **bonne pratique** : ranger ses fichiers dans le dossier du projet ! (on peut changer les noms de dossier hein)
+	-dossier `templates` pour contenir toutes les templates
+	- fichier html conteneur à la racine de `templates`
+	- dossier `pages` pour les pages du navigateur
+	- dossier `partials` pour les autres trucs qu’on pourrait rajouter (les médaonnées à rajouter avec `include`, par ex)
+	- dossier `static` pour tous les fichiers appelés par le script et qui ne vont pas changer : images, css, javascript
+
+
+---
+# `FLASK_SQLALCHEMY` - FLASK ET SQL EN PYTHON
+
+https://flask-sqlalchemy.palletsprojects.com/en/2.x/*
+
+---
+**l’anatomie d’une transaction SQL**
+- **une transaction, c’est** : la communication avec une BDD à l’aide de SQL, composée d’une ou plusieurs requêtes
+- **déroulement d’une transaction SQL** (à l’aide d’un langage de prog comme python ou non)
+	- un début de connexion à la BDD
+	- un début de transaction avec la BDD : on lance une requête SQL (écriture, lecture…)
+	- un retour de SQL : succès ou échec de la requête
+		- succès => commit de la requête (le résultat de la requête est retenu : les données envoyées pour écriture sont enregistrées) et fin de transaction
+		- échec => rollback : on revient au début de la transaction et on recommence
+	- fin de la transaction
+![43be705ad15a042f4bfd96876787d5cc.png](../_resources/43be705ad15a042f4bfd96876787d5cc.png)
+
+---
+**utiliser `flask_sqlalchemy` - les bases**
+- **adaptation de SQLalchemy** (librairie qui sert à travailler avec SQL) à la librairie flask
+- SQLalchemy est un **ORM** (objet relational mapping) : permet de travailler avec des objets natifs plutôt que de faire des requêtes SQL (en gros, un ORM résout l’incompatibilité SQL/python en traduisant SQL pour un langage orienté objet)
+	- **avantages** : 
+		- changer de moteur facilement (compatibilité avec ≠ versions de SQL : les ORM adaptent la requête aux différents moteurs SQL)
+		-  protection contre des failles de sécurité (évite de passer directement de l’input utilisateur à la BDD, évite l’injection de requêtes par des utilisateurs (injections = l’utilisateur qui écrit des requêtes comme s’il était admin ouloulou le fifou)
+- **utiliser la librairie** : (après l’avoir installé avec pip install et après avoir installé sqlite, avec comme nom d’application flask `app`)
+	- **importer les librairies** `flask` et `flask_sqlalchemy`
+	- **créer une application flask** et la stocker dans une variable: `app = Flask(‘nom_appli’)`
+	- **connecter l’appli à la bdd** : `app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///chemin-relatif-vers-bdd`
+		- `SQLALCHEMY_DATABASE_URI` permet d’indiquer quel uri sera utilisé pour se connecter à la bdd
+		- `sqlite` indique le moteur utilisé (ici, sqlite)
+		- `///` : le premier `/` indique qu’on utilise un chemin relatif ; pour un chemin absolu, utiliser `//`
+	- **initier la bdd** sous la forme d’un objet sqlalchemy : `db = SQLAlchemy(app)`
+		- on crée un objet SQLAlchemy et on lui donne en argument l’application flask (`app`)
+		- on stocke cet objet dans une variable `db`
+
+
+---
+**faire une requête en langage sql : `engine.execute()`**
+- **syntaxe** : `db.engine.execute(‘requête en syntaxe sql’)` 
+	- avec `db` le nom de la variable dans laquelle on stocke son objet `SQLAlchemy`
+	- la requête retourne un objet `ResultProxy`, et pas les résultats en tant que tel
+- **faire ressortir les résultats**
+	- boucler sur l’objet `ResultProxy`
+	- utiliser les **méthodes** 
+		- `.fetchone()` (retourne 1 résultat de la requête), 
+		- `.fetchall()` (retourne tous les résultats) et 
+		- `.fetchmany(n)` (retourne `n` résultats)
+	- les résultats sortis avec ces méthodes prennent comme **clé de dictionnaires les noms de colonnes de db** => cf exemple 
+
+	```
+		query = db.engine.execute("SELECT * FROM place")
+		print(query)
+			for x in query.fetchmany(2):
+				print(x["place_nom"])
+				print(type(x))
+	```
+	
+	---
+**gérer les requêtes automatiquement**
+
+il faut créer un modèle (une classe python qui reprenne la structure d’une table de la bdd) et requêter ce modèle avec les méthodes de SQLAlchemy :
+- **définir le modèle** : 
+	- le modèle est défini comme une **`class`**
+	- son nom prend une **majuscule** pour être lisibile,
+	- le modèle doit avoir le **même nom que la table** dont il est dérivé
+	- **syntaxe** pour renseigner les champs du modèle*(aka, les colonnes du tableau): `nom_conolle = colonne(data-type, params)` (cf exemples)
+	- **data types** pour les modèles:
+		- `.String(n)` : chaîne de caractères de longueur maximale `n`
+		- `.Text` - texte sans longueur maximale
+		- `.DateTime` : heure et date, suivant un objet `datetime` en python
+		- `.Integer` : entier
+		- `.Float` : décimal
+		- `.Boolean` ; boléen
+	- *exemple - pour comprendre la syntaxe:
+	```
+		class Place(db.Model):
+    		place_id = db.Column(db.Integer, unique=True, nullable=False, primary_key=True, autoincrement=True)
+    		place_nom = db.Column(db.Text)
+    		place_description = db.Column(db.Text)
+    		place_longitude = db.Column(db.Float)
+    		place_latitude = db.Column(db.Float)
+    		place_type = db.Column(db.String(45))
+	```
+
+- **les requêtes** - toutes les requêtes se font sur une table, que l'on appelle comme dans le modèle défini avec `class`
+	- **`.query`** : lancer une requête SELECT
+	- **`.filter()`** : filtrer les résultats par un critère (équivalent de WHERE)
+		- en SQL, le filtrage sur des données se fait en comparant une donnée avec une valeur => avec flasksql, c'est la même chose mais on utilise les opérateurs python:
+		- **syntaxe**: `Modelname.query.filter(Modelname.column=="value")` (on peut remplacer `==` par un autre opérateur etc)
+	- **`.get(n)`** : récupérer une entrée par numéro d'identifiant `n`
+	- **`.all()`** : récupérer tous les résultats d'une requête
+	- **`.first()`** : ne récupérer que le premier résultat
+	- **`.count()`** : compter les résultats (aka récupérer le nombre de résultats)
+	- **`.order_by()`** : ordonner les résultats
+		- `.order_by([...].desc())` : ordre descendant
+		- `.order_by([...].asc())` : ordre ascendant
+	- *exemples*
+		- `lieux = Place.query.all()`
+		- `cinq = Place.query.get(5)`
+		- `settlements = Place.query.filter(Place.place_type=="settlement").order_by(Place.place_nom.desc()).all()`
+	- **afficher les résultats d'une requête** : 
+		- **`request_name.column_name`** : on stocke le résultat de la requête dans une variable et on utilise le nom de colonne que l'on veut afficher comme attribut de cette variable
+		- utiliser des **boucles** pour traduire le résultat
+		- *exemple* :
+		```python
+			for lieu in lieux:
+				print(lieu.place_nom, lieu.place_type)
+		```
+	- **lire une requête `flask_sqlalchemy` en SQL** : soit une variable `requete` stockant une requête, il suffit de faire: `print(requete)`

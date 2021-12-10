@@ -52,6 +52,13 @@ if 5 > 2:
     - Elle **s'applique à l'objet spécifié** seulement
     - Elle s'écrit `objet.method()`. L'`objet` est spécifié avant le point, les paramètres sont spécifiés dans `()`
     - Exemple: `mystring.split()` est une méthode qui s'applique à `mystring`; `split()` ne fonctionne que avec les `str`
+
+
+---
+**`modules` vs `packages`**
+- `modules` : ensemble de fichiers accessibles par python
+- `packages` : ensemble de modules
+- *exemple : `from flask import Flask` importe le module `Flask` depuis le package `flask`
     
 ---
 
@@ -65,6 +72,17 @@ if 5 > 2:
 - Échapper un caractère: `\caractère`
 - Sauter une ligne hors d'une string multi-ligne: `\n`
 - Tabulation: `\t`
+
+
+---
+**Écrire une ligne de code sur plusieurs lignes**
+(aka échapper un saut de ligne): 
+- **`\`** à la fin de la première ligne de code permet d'échapper le saut de ligne (il n'est pas pris en compte par le parseur de python)
+- **syntaxe / exemple** : 
+	```
+		requete = Place.query.filter(Place.place_type=="settlement")\
+    .order_by(Place.place_nom.desc())
+	```
 
 ---
 
@@ -105,6 +123,7 @@ if a is True:
 - **N'installer que les librairies nécessaires à un projet**
 - **Fermer un fichier avec `.close()`** dès qu'on ne s'en sert plus!
 - **Les espaces n'ont pas d'importance** mais c'est bien d'en utilise aux bons endroits. Les IDE en rajoutent où il faut.
+- **écrire le nom d'une variable constante en toutes majuscules** - permet de les distinguer des autres variables, même si python n'a pas de système de variables constantes
 
 
 ---
@@ -1164,3 +1183,43 @@ Fonction qui **énumère les items dans un itérable** en **générant des tuple
 	- `iterable`  - itérable à énumérer
 	- `start` - numéro où commencer l'énumération (si `start=5`, l'énumération commence à 5, pas à 0)
 - pour **retourner les résultats d'enumerate**, il faut retyper: `list(enumerate(iterable))`
+
+
+
+---
+**Les objets et la `OOP`**
+- **classe d’objets** : grande catégorie de valeurs régies par un ensemble de lois similaires et qui fonctionnent de manière similaire :
+	- `list`
+	- `str`
+- **objets** : instances des classes + représentations de choses et/ou de concepts (une str est une phrase ; toutes les phrases sont régies par des principes similaires)
+- **méthodes** : les méthodes sont des fonctions propres à certaines classes et qui s’appliquent à des objets
+- **attributs** : des propriétés de classes qui fonctionnent comme des variables ou des clés de dictionnaires et qui s’appliquent à des objets
+- **instancer un objet** : Pour créer un objet qui ne fait pas partie des types principaux, on utilise généralement le nom de la classe avec les paramètres de base dont elle a besoin. Cela ressemble à l'utilisation d'une fonction : `objet = nomClasse()` définit une variable objet appartenant à la classe `nomClasse` :
+	```
+		from modules_cours.chapitre5 import ObjetExemple
+		objet2 = ObjetExemple()
+		objet2.attribut_exemple = 8
+		print(objet2.attribut_exemple)
+		print(objet_exemple.attribut_exemple)
+	```
+- système des objets = **système d’héritages** : 
+	- les objets héritent des propriétés des classes enfants qui héritent des propriétés des classes parents
+	- autrement dit : les objets sont des instanciations des classes enfants qui sont des spécialisations de leurs classes parentes
+
+
+---
+**bonnes pratiques - environnement virtuel et installations de librairies**
+
+- **1 projet = 1 environnement virtuel** ; utilité des environnements:
+	- **protéger le système** (ce qui se passe dans le venv reste dans le venv)
+	- **éviter les interférences** entre projets, avec différentes versions d'une même librairie python
+- **créer un environnement virtuel et y installer une librairie** : (dans notre exemple: le nom de projet est nv_projet, la librairie installée est flask)
+	- `cd ~ && mkdir nv_projet` : créer un dossier pour le projet depuis le répertoire home
+	- `cd nv_projet` : se déplacer dans le dossier du projet
+	- `python3 -m venv env` : créer un environnement virtuel env dans le dossier
+	- `source env/bin/activate` : activer l'environnement
+	- `pip install flask` : installer la nouvelle librairie
+- **lancer un environnement virtuel à chaque fois** que l'on commence à travailler sur un projet:
+	- `cd ~/nv_projet`
+	- `source env/bin/activate`
+- **localiser l'environnement** depuis lequel on travaille et **identifier l'interpréteur** python utilisé : `which python` dans le terminal
