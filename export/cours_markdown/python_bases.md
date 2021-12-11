@@ -973,37 +973,6 @@ retourne: `red apple red banana red cherry big apple big banana big cherry tasty
 - `for x in range(6)` retourne `0 1 2 3 4 5`
 - `for x in range (2, 6)` retourne `3 4 5`
 
-
----
-# `try` ... `except`: tester et gérer des erreurs
-
-**Erreurs en Python** = `exceptions` qui, en temps normal, stoppent l'exécution du code. `try` et `except` permettent de tester et de gérer des erreurs sans stopper l'exécution du code: le bloc de code `try` s'exécute; si il n'y a pas d'erreurs, tout va bien, sinon le bloc `except` se lance. Une **structure `try...except` exécute le code dans `try` jusqu'à la première erreur**; ensuite, c'est `except` qui s'exécute pour le reste du code.
-
-- **`try`** - exécuter un bloc de code pour jusqu'à ce qu'il soulève une erreur
-- **`except`** - bloc de code à exécuter si `try` soulève des erreurs
-	- **pour gérer différents types d'erreurs**; plusieurs blocs `except` peuvent être mis à la suite
-	- **exemple**: un bloc de code à exécuter pour les `NameError`, un bloc à exécuter pour les `SyntaxError`
-		```Python
-		except NameError:
-			#code
-		except SyntaxError
-			#code
-		```
-- **`else`** - bloc de code à exécuter si `try` ne soulève pas d'erreurs
-- **`finally`** - bloc de code à exécuter, qu'il y ait ou non des erreurs
-
-**Exemple**:
-```Python
-try:
-  print(x)
-except:
-  print("Something went wrong")
-else:
-  print("Nothing went wrong") 
-finally:
-  print("The 'try except' is finished") 
-```
-
 ---
 # Gérer des fichiers
 
@@ -1089,7 +1058,8 @@ def fonction_sans_parametre():
 
 ---
 
-**Appeler une fonction**<br>Écrire le nom de la fonction suivi de parenthèses avec les paramètres (si la fonction accepte des paramètres)
+**Appeler une fonction**
+Écrire le nom de la fonction suivi de parenthèses avec les paramètres (si la fonction accepte des paramètres)
 ```python
 def my_function():
     print("Hello from a function")
@@ -1137,7 +1107,7 @@ myfunc()
 
 ---
 
-**Les fonctions récursives**<br>
+**Les fonctions récursives**
 - Une fonction récursive est une **fonction qui s'appelle elle-même**
 - C'est risqué mais ça peut être très utile puisqu'on peut boucler à travers tous les résultats produits.<br>
 ``def tri_recursion(k):
@@ -1187,7 +1157,7 @@ Fonction qui **énumère les items dans un itérable** en **générant des tuple
 
 
 ---
-**Les objets et la `OOP`**
+# les objets et la `OOP`
 - **classe d’objets** : grande catégorie de valeurs régies par un ensemble de lois similaires et qui fonctionnent de manière similaire :
 	- `list`
 	- `str`
@@ -1208,7 +1178,7 @@ Fonction qui **énumère les items dans un itérable** en **générant des tuple
 
 
 ---
-**bonnes pratiques - environnement virtuel et installations de librairies**
+# bonnes pratiques - environnement virtuel et installations de librairies
 
 - **1 projet = 1 environnement virtuel** ; utilité des environnements:
 	- **protéger le système** (ce qui se passe dans le venv reste dans le venv)
@@ -1223,3 +1193,111 @@ Fonction qui **énumère les items dans un itérable** en **générant des tuple
 	- `cd ~/nv_projet`
 	- `source env/bin/activate`
 - **localiser l'environnement** depuis lequel on travaille et **identifier l'interpréteur** python utilisé : `which python` dans le terminal
+
+
+---
+# structurer son projet
+https://python-packaging-tutorial.readthedocs.io/en/latest/setup_py.html
+
+
+---
+**créer des packages et packager son application**
+- **un package, c'est un dossier** qui contient:
+	- un **fichier `__init__.py`** ; ce ficher est normalement vide et indique à l'interpréteur que le dossier est un package
+	- des **modules python** qui contiennet des éléments qui seront réutilisés dans l'application:
+		- variables constantes (qui ne sont pas censées être redéfinies dans le projet)
+		- fonctions
+		- classes d'objets
+	- potentiellement, des **sous-dossiers** qui représentent d'autres packages (avec `__init__.py` et modules)
+- **bonnes pratiques : pour créer des packages et structurer ses dossiers** pour une application: cf `cours-flask/exemple12` (je reprends les noms de cet exemple, les vrais noms peuvent changer)
+	- **à la racine** 
+		- un fichier `run.py` qui lance l'application
+	- **un sous-dossier pour les données de l'appli**, contenant
+		- le **package de l'application** : 
+			- un fichier `__init__.py`
+			- le script de configuration de l'application: `app.py`
+			- les routes utilisées par flask : `routes.py`
+		- un **package de modules** (`modeles/`)utilisés par l'application, organisés par types de modules (un module utilisateur `utilisateurs.py`, un module de données scientifiques `donnees.py`)
+		- un **dossier `static/`** pour les données statiques (utilisées pour la mise en page: css, fonts, js, images...)
+		- un **dossier `templates/`**, contenant les templates jinja, avec à la racine, le template `conteneur.html` et ensuite des sous-dossiers par type de pages et pour les partials (métadonnées etc)
+- **le fichier dans lancement d'une application python** : `__main__.py`
+	- ce fichier doit se trouver à la racine du dossier du projet
+	- il doit importer les scripts qui, eux, permettent de faire tourner l'appli (`run.py`)
+	- grâce à lui, on peut lancer une appli en se trouvant dans le bon dossier et en faisant `python.app`
+
+
+---
+**importer et appeler des modules et des ressources**
+- **importer** :
+	- **importer tout un package** (`pkg_name`) : `import pkg_name`
+	- **importer un seul module** (`module_name`) d'un paquet:
+		- `from pkg_name import module_name`
+		- `import pkg_name.module_name`
+	- **importer une seule ressource** (`rsc_name` : une seul variable, une seule fonction dans un module) :
+		- `from pkg_name.module_name import rsc_name`
+- **import relatif** : ça ressemble à linux ouloulou
+	- **en bref** : `.` = dossier courant, `..` = dossier parent, `...` = dossier grand parent etc
+	- importer une ressource du dossier courant: `from .module_name import rsc_name`
+	- importer une ressource du dossier parent: `from ..module_name import rsc_name`
+	- descendre dans l'arborescance (ici, `pkg1` contient le sous paquet `pkg2`) : `from pkg1.pkg2 import module_name`
+- **import absolu avec `os`** : 
+	- après avoir **importé `os`**
+	- **récupérer le chemin absolu vers le dossier actuel**: `os.path.dirname(os.path.abspath(__file__)`
+		- `os.path.abspath(__file__)` : le chemin vers le fichier actuel (`__file__`)
+		- `os.path.dirname` : le nom de dossier du résultat de `os.path.abspath(__file__)` (aka: le nom du dossier où se trouve le fichier depuis lequel est exécuté `os.path`)
+	- **construrire des chemins** avec `.join()` depuis le dossier actuel : stocker le nom de dossier `os.path.dirname` dans une variable et ajouter en arguments de `.join()` le chemin vers le fichier:
+		- *exemple: `os.path.join(chemin_actuel, "gazetteer", "templates")`*
+- **attention aux imports circulaires !** (un module A importe un module B qui importe un module A...)
+- dans un script, on doit **travailler avec une ressource** (dans un script, on utilise qu'une seule fonction/variable/classe à la fois, pas tout un module ou un paquet) => **appeler une ressource** :
+	- `pkg_name.module_name.rsc_name` si on a importé tout le paquet
+	- `module_name.rsc_name` si on a importé un seul module
+	- `rsc_name` si on a importé une seule ressource
+- **éviter les conflits** : si 2 ressources ont le même nom, alors il y a un conflit et la valeur de la dernière ressource écrase celle de la première => on doit **renommer la ressource avec `as`**
+	- `import ___ as ___`
+	- `from ___ import ___ as ___`
+
+
+
+---
+# `try` ... `except` ... `raise`: tester et gérer des erreurs
+
+**Erreurs en Python** = `exceptions` qui, en temps normal, stoppent l'exécution du code. `try` et `except` permettent de tester et de gérer des erreurs sans stopper l'exécution du code: le bloc de code `try` s'exécute; si il n'y a pas d'erreurs, tout va bien, sinon le bloc `except` se lance. Une **structure `try...except` exécute le code dans `try` jusqu'à la première erreur**; ensuite, c'est `except` qui s'exécute pour le reste du code.
+
+- **`try`** - exécuter un bloc de code pour jusqu'à ce qu'il soulève une erreur
+- **`except`** - bloc de code à exécuter si `try` soulève des erreurs
+	- **pour gérer différents types d'erreurs**; plusieurs blocs `except` peuvent être mis à la suite
+	- **exemple**: un bloc de code à exécuter pour les `NameError`, un bloc à exécuter pour les `SyntaxError`
+		```Python
+		except Exception:
+			#code
+		except NameError:
+			#code
+		except SyntaxError
+			#code
+		```
+- **`raise`** permet de stocker et de relancer des erreurs dans un except : dans l'exemple ci-dessous,
+	- On ajoute `Exception` qui permet de cibler toutes les erreurs. Cela pourrait être une erreur spécifique (`NameError`, `TypeError`...).
+    - On stocke cette erreur via `as nom_de_variable`
+	- On fait toutes les opérations que l'on veut
+	- On utilise ensuite `raise` avec l'erreur à lancer
+	- `raise` est **très gourmand en ressources** => à n'utiliser qu'en cas de force majeure; il vaut mieux couvrir les erreurs possibles avec des `try...except`
+	```
+	except Exception as ma_variable_erreur:
+    	print("Je me suis trompé !")
+    	raise ma_variable_erreur
+	```
+- **`else`** - bloc de code à exécuter si `try` ne soulève pas d'erreurs
+- **`finally`** - bloc de code à exécuter, qu'il y ait ou non des erreurs
+
+**Exemple**:
+```Python
+try:
+  print(x)
+except:
+  print("Something went wrong")
+else:
+  print("Nothing went wrong") 
+finally:
+  print("The 'try except' is finished") 
+```
+

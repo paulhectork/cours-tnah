@@ -575,6 +575,9 @@ il faut créer un modèle (une classe python qui reprenne la structure d’une t
 		- en SQL, le filtrage sur des données se fait en comparant une donnée avec une valeur => avec flasksql, c'est la même chose mais on utilise les opérateurs python:
 		- **syntaxe**: `Modelname.query.filter(Modelname.column=="value")` (on peut remplacer `==` par un autre opérateur etc)
 	- **`.get(n)`** : récupérer une entrée par numéro d'identifiant `n`
+	- **`.like()`** : faire une requête LIKE et filtrer ses résultats avec un critère approximatif
+		- **syntaxe** : `Modelname.query.filter(Modelname.comun.like("%value%"))`
+		- **tldr** : s'utilise dans un filtre `.filter()` et permet d'utiliser les wildcards `%`
 	- **`.all()`** : récupérer tous les résultats d'une requête
 	- **`.first()`** : ne récupérer que le premier résultat
 	- **`.count()`** : compter les résultats (aka récupérer le nombre de résultats)
@@ -596,33 +599,68 @@ il faut créer un modèle (une classe python qui reprenne la structure d’une t
 - **lire une requête `flask_sqlalchemy` en SQL** : soit une variable `requete` stockant une requête, il suffit de faire: `print(requete)`
 - **intégrer les résultats d'une requête dans une application utilisant une base de données**
 	```python
-			#importer ses librairies
-			from flask import Flask, render_template
-			from flask_sqlalchemy import SQLAlchemy
+		#importer ses librairies
+		from flask import Flask, render_template
+		from flask_sqlalchemy import SQLAlchemy
 			
-			#configurer son appli et la lier avec la bdd
-			app = Flask("Application")
-			app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///cours-flask/db.sqlite'
-			db = SQLAlchemy(app)
+		#configurer son appli et la lier avec la bdd
+		app = Flask("Application")
+		app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///cours-flask/db.sqlite'
+		db = SQLAlchemy(app)
 			
-			#initier ses modèles de données
-			class Place(db.Model):
-				place_id = db.Column(db.Integer, unique=True, nullable=False, primary_key=True, autoincrement=True)
-				place_nom = db.Column(db.Text)
-				place_description = db.Column(db.Text)
-				place_longitude = db.Column(db.Float)
-				place_latitude = db.Column(db.Float)
-				place_type = db.Column(db.String(45))
+		#initier ses modèles de données
+		class Place(db.Model):
+			place_id = db.Column(db.Integer, unique=True, nullable=False, primary_key=True, autoincrement=True)
+			place_nom = db.Column(db.Text)
+			place_description = db.Column(db.Text)
+			place_longitude = db.Column(db.Float)
+			place_latitude = db.Column(db.Float)
+			place_type = db.Column(db.String(45))
 		
-			#récupérer les données de la bdd quand on exécute les routes:
-			@app.route('/')
-			def accueil():
-				lieux = Place.query.all()
-				return render_template("pages/accueil.html", nom="Gazetteer", lieux=lieux)
+		#récupérer les données de la bdd quand on exécute les routes:
+		@app.route('/')
+		def accueil():
+			lieux = Place.query.all()
+			return render_template("pages/accueil.html", nom="Gazetteer", lieux=lieux)
 			
-			@app.route("/place/<int:place_id>")
-			def lieu(place_id)
-				lieu_unique = Place.query.get(place_id)
-				return render_template("pages/place.html", nom="Gazetteer", lieu=lieu_unique)
-	
+		@app.route("/place/<int:place_id>")
+		def lieu(place_id):
+			lieu_unique = Place.query.get(place_id)
+			return render_template("pages/place.html", nom="Gazetteer", lieu=lieu_unique)
 	```
+
+---
+**formulaire de recherche simple : html `<input type="text">` et l'objet flask  `request`**
+- **construire un formulaire de recherche simple en HTML** : 
+	- **tldr** : inclure un élément `<input>` dans un élément `<form>`
+	- **la balise `<form>`** englobe l'ensemble des champs de recherche simple/complexe et l'ensemble des boutons de recherches
+	- **les champs de saisie de texte `<input type="text">`** : 
+		- c'est dans cette balise que l'on tape **les mots à rechercher**
+		- **attribut `placeholder=""`** permet d'afficher une légende dans le champ de recherche (un texte qui s'affiche quand l'utilisateurice n'a pas écrit dans ce champ)
+		- **attribut `name=""`** permet de nommer un champ de recherche ; c'est le nom de ce champ que l'on recupère avec `request`
+		- il y a un **kilotonne de types** de balises `<input>` : https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Input ; les utiliser si ça vaut le coût
+		- *exemple : `<input type="text" name="keyword" placeholder="Recherche">`*
+	- **le bouton de lancement de recherche `<button type="submit">`** - c'est assez translucide comme bitonnieau : c'est le bouton sur lequel on clique pour lancer la recherche
+		- *exemple : `<button type="submit">envoyer</button>`*
+- **traiter une requête : l'objet `request`** 
+	- `request` est un objet flask qui permet de **récupérer les données transmises au serveur par une requête HTTP** faite par l'utilisateur (requête GET : recherche ; requête POST : ajout d'infos...) ; plusieurs comportements sont possibles pour cet objet, définis comme =/= attributs (voir documentation complète pour la liste)
+	- **`request.args`** : l'attribut `args` **parse les paramètres d'un URL sous la forme d'un dictionnaire** et permet donc de traiter les requêtes GET
+		- fonctionne avec la méthode **GET** : la requête est stockée en paramètres d'un url, après le `?`
+		- => permet de **récupérer une recherche** lancée par l'utilisateur, puisque recherches sur le site = requête http get + requêtes get sont lisibles dans l'URL
+	- **utiliser `request.args`** : stocker la recherche de l'utilisateurice dans une variable et créer une fonction qui associe à la recherche une requête SQL:
+		- `request.args.get()` - traiter la recherche : associer la recherche de l'utilisateur à la méthode http get et donner `None` comme valeur par défaut à cette requête (si aucune requête est lancée par l'utilisateur, rien n'a lieu quoi)
+		- `if motclef:` - si une recherche a été lancée par l'utilisateurice, la traduire en recherche SQL
+		- recherche rapide => requête SQL `.like()` lancée (pour avoir des résultats proches de la requête)
+	```python
+		@app.route("/recherche")
+		def recherche():
+    	motclef = request.args.get("keyword", None)
+    	resultats = []
+	    titre = "Recherche"
+			if motclef:
+        resultats = Place.query.filter(Place.place_nom.like("%{}%".format(motclef))).all()
+        titre = "Résultat pour la recherche `" + motclef + "`"
+    return render_template("pages/recherche.html", resultats=resultats, titre=titre)
+	```
+	- **documentation à la bien sisi** : https://flask.palletsprojects.com/en/2.0.x/quickstart/#accessing-request-data
+	- **documentation dodue mal de crâne** : https://flask.palletsprojects.com/en/2.0.x/api/#incoming-request-data 
