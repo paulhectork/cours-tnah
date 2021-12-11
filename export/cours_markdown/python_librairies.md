@@ -178,7 +178,7 @@ dépendance à installer via `pip install`
 **documentation officielle** https://click.palletsprojects.com/en/8.0.x/ (elle est belle et il faut y jeter un œil, tu critiques mais tu `click`)
 
 ***Exemple*** :
-```Python
+```python
 	@click.group() #définir un groupe de commandes
 	
 	def mon_groupe() #le groupe de commandes correspond à la fonction group et contient les 4 décorateurs ci dessous
@@ -239,18 +239,18 @@ dépendance à installer via `pip install`
 
 **Grouper les commandes, en étapes**
 - **définir un groupe de commandes** avec `click.group()` suivi de la fonction groupant les commandes.
-	```
+	```python
 		@click.group()
 		def mon_groupe()
 	```
 - **définir les commandes contenues dans le groupe** avec le décorateur `[group].command()` (remplacer `[group]` par nom de fonction défini après `click.group()`)
-	```
+	```python
 		@mon_groupe.command()
 		def run():
 			#code
 	```
 	- **ajouter une commande à un groupe plus tard** : plutôt que d'utiliser `[group].command()`, on peut définir une commande par `click.command()` et l'ajouter ensuite à un groupe avec `[group].add_command()` (remplacer `[group]` par nom de fonction défini après `click.group()` et mettre le nom de la commande à ajouter au groupe en paramètre de `add_command()`) : 
-		```
+		```python
 			@click.command()
 			def run():
 				#code
@@ -259,7 +259,7 @@ dépendance à installer via `pip install`
 
 - **nommer les commandes du script** 
 	- **nom de commande** indiqué par une chaîne de caractères en paramètre de `mon_groupe.command()` :
-		```
+		```python
 			@mon_groupe.command("search")  #la commande s'appelle "search"
 			def run():
 				#code
@@ -267,12 +267,12 @@ dépendance à installer via `pip install`
 	- **n'exécuter qu'une seule commande d'un cli** qui contient un groupe de commandes en indiquant le nom de cette commande dans le terminal
 		- *Exemple* - `python cli/isidore.py search "Philaenis" --full` n'exécute que la commande `search` du CLI `isidore.py` avec l'argument `Philaenis` et l'option `full` activée
 - **Exécuter le groupe de commandes** - à la fin du script, on exécute la commande définie avec le décorateur `click.group()`:
-	```
+	```python
 		if __name__ == "__main__":
     	group()
 	```
 - ***Exemple de la documentation officielle de click***
-	```
+	```python
 		@click.group()
 		def cli():
   	 	pass
@@ -315,7 +315,7 @@ dépendance à installer via `pip install`
 	- *tuple rgb* - 3 integrers compris entre 0 et 255
 - **Documentation officielle** de `click` - https://click.palletsprojects.com/en/8.0.x/utils/#ansi-colors 
 - **Exemples**: 
-	```
+	```python
 		click.echo(click.style('Hello World!', fg='green'))
 		click.echo(click.style('ATTENTION!', blink=True))
 		click.echo(click.style('Some things', reverse=True, fg='cyan'))
@@ -366,7 +366,7 @@ https://flask.palletsprojects.com/en/2.0.x/quickstart/#routing
 - **créer une application à plusieurs pages** dans une application : 
 	- chaque décorateur `@app.route(‘url’)` définit un chemin auquel est associé une fonction
 	- les différentes fonctions de l’application s’exécuteront quand leur url sera appelé :
-     ```
+     ```python
 		@app.route('/')
 		def index():
 		    return 'Index Page'
@@ -456,14 +456,14 @@ https://flask.palletsprojects.com/en/2.0.x/quickstart/#routing
 		- ensuite, encadrer le contenu html du bloc d’import par `{% block nom_bloc_import%}` et `{% endblock %}`
 	- exemple où le bloc accueil s’intègre dans conteneur : 
 		- bloc conteneur dans un fichier :
-        ```
+        ```html
 			<html>
 				<head><title>{% block titre %}{%endblock%}</title></html>
 				<body><div>{% block corps %}{%endblock%}</div></body>
 			</html>
 		```
 		- blocs d’import dans un autre fichier :
-        ```
+        ```html
 			<html>
 			{% extends ‘conteneur.html’ %}
 			{% block titre %} [contenu html] {% endblock %}
@@ -534,7 +534,7 @@ https://flask-sqlalchemy.palletsprojects.com/en/2.x/*
 		- `.fetchmany(n)` (retourne `n` résultats)
 	- les résultats sortis avec ces méthodes prennent comme **clé de dictionnaires les noms de colonnes de db** => cf exemple 
 
-	```
+	```python
 		query = db.engine.execute("SELECT * FROM place")
 		print(query)
 			for x in query.fetchmany(2):
@@ -559,7 +559,7 @@ il faut créer un modèle (une classe python qui reprenne la structure d’une t
 		- `.Float` : décimal
 		- `.Boolean` ; boléen
 	- *exemple - pour comprendre la syntaxe:
-	```
+	```python
 		class Place(db.Model):
     		place_id = db.Column(db.Integer, unique=True, nullable=False, primary_key=True, autoincrement=True)
     		place_nom = db.Column(db.Text)
@@ -585,12 +585,44 @@ il faut créer un modèle (une classe python qui reprenne la structure d’une t
 		- `lieux = Place.query.all()`
 		- `cinq = Place.query.get(5)`
 		- `settlements = Place.query.filter(Place.place_type=="settlement").order_by(Place.place_nom.desc()).all()`
-	- **afficher les résultats d'une requête** : 
-		- **`request_name.column_name`** : on stocke le résultat de la requête dans une variable et on utilise le nom de colonne que l'on veut afficher comme attribut de cette variable
-		- utiliser des **boucles** pour traduire le résultat
-		- *exemple* :
+- **afficher les résultats d'une requête** : 
+	- **`request_name.column_name`** : on stocke le résultat de la requête dans une variable et on utilise le nom de colonne que l'on veut afficher comme attribut de cette variable
+	- utiliser des **boucles** pour traduire le résultat
+	- *exemple* :
 		```python
 			for lieu in lieux:
 				print(lieu.place_nom, lieu.place_type)
 		```
-	- **lire une requête `flask_sqlalchemy` en SQL** : soit une variable `requete` stockant une requête, il suffit de faire: `print(requete)`
+- **lire une requête `flask_sqlalchemy` en SQL** : soit une variable `requete` stockant une requête, il suffit de faire: `print(requete)`
+- **intégrer les résultats d'une requête dans une application utilisant une base de données**
+	```python
+			#importer ses librairies
+			from flask import Flask, render_template
+			from flask_sqlalchemy import SQLAlchemy
+			
+			#configurer son appli et la lier avec la bdd
+			app = Flask("Application")
+			app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///cours-flask/db.sqlite'
+			db = SQLAlchemy(app)
+			
+			#initier ses modèles de données
+			class Place(db.Model):
+				place_id = db.Column(db.Integer, unique=True, nullable=False, primary_key=True, autoincrement=True)
+				place_nom = db.Column(db.Text)
+				place_description = db.Column(db.Text)
+				place_longitude = db.Column(db.Float)
+				place_latitude = db.Column(db.Float)
+				place_type = db.Column(db.String(45))
+		
+			#récupérer les données de la bdd quand on exécute les routes:
+			@app.route('/')
+			def accueil():
+				lieux = Place.query.all()
+				return render_template("pages/accueil.html", nom="Gazetteer", lieux=lieux)
+			
+			@app.route("/place/<int:place_id>")
+			def lieu(place_id)
+				lieu_unique = Place.query.get(place_id)
+				return render_template("pages/place.html", nom="Gazetteer", lieu=lieu_unique)
+	
+	```
