@@ -662,5 +662,6 @@ il faut créer un modèle (une classe python qui reprenne la structure d’une t
         titre = "Résultat pour la recherche `" + motclef + "`"
     return render_template("pages/recherche.html", resultats=resultats, titre=titre)
 	```
+	- tant que tous les formulaires de recherche du même type (recherche rapide) renvoient à la même page, on peut **multiplier les formulaires** : il suffit de donner le même argument `name=""` à la balise `<input>` pour que la recherche soit traitée par `request.args`
 	- **documentation à la bien sisi** : https://flask.palletsprojects.com/en/2.0.x/quickstart/#accessing-request-data
 	- **documentation dodue mal de crâne** : https://flask.palletsprojects.com/en/2.0.x/api/#incoming-request-data 
