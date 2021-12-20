@@ -273,3 +273,64 @@ une requête xquuery retourne une séquence de résultats => il faut itérer sur
 		for $city in $doc//city/name
 		return $city)
 ```
+
+
+---
+**générer du XML à partir d'une requête : les constructeurs**
+- pour créer un fichier XML à partir d'une requête,
+	- **créer une structure XML** qui corresponde à ce qu'on veut
+	- **faire des requêtes entre `{}` dans le document XML**, là où l'on veut que le résultat du XML s'affiche
+	- **syntaxe**
+		- avec le **contenu d'un élément** : `<balise>{requête}</balise>`  (faire la requête entre la balise d'ouverture et de fermeture)
+		- avec les **arguments d'un élément** : `<balise arg="{requête}"/>` (faire la requête entre guillemets après le nom de l'argument)
+	- on peut faire **tous des requêtes en xpath et xquery/flowr**
+	- *exemple : on crée une balise `montagne` avec un argument `compte` qui contient tous les noms de montagne*
+	```xquery
+		let $doc := doc('db/tp/mondial')
+		return
+		<geographie>
+			<montagne compte="{count($doc//mountain)}">{}
+				for $mountain in $doc//mountain/text()
+				return $mountain || ', '
+			}</montagne>
+		</geographie>
+	```
+
+
+---
+**constructeurs XML directs et indirects**
+(ratrapper / combiner avec ce qu'il y a au dessus)
+
+
+---
+**définir des namespaces**
+- **namespace / espace de noms** : spécification particulière de XML (tei, xpath...), lié à un URL qui définit la spécification; on peut empiler les définitions
+- **syntaxe** :
+	- `declare namespace nom = ”url” ;` - permet de **déclarer un espace de noms**
+		- l'espace de nom n'est pas par défaut => il faut **spécifier l'espace de noms** à chaque fois : `namespace:elementname`
+	- `declare default element|attribute namespace ”url” ;` - permet de **déclarer un espace de noms par défaut** dans un nœud XML donné
+		- permet de **ne pas avoir à spécifier** l'espace de noms défini par défaut
+		- à l'inverse, si on travaille avec des éléments qui ne font pas partie de cet espace de nom, il faut le spécifier, donc c risqué
+- **par défaut**, XQuery prédéfinit syntaxe xml par défaut, schéma xml, instance de schéma, fonctions xpath et fonctions xquery définies localement
+- *exemple - définir tei comme namespace par défaut pour les éléments et les attributs*
+```xquery
+	declare default element tei "http://www.tei-c.org/ns/1.0";
+	declare default attribute tei "http://www.tei-c.org/ns/1.0";
+```
+- *exemple: utiliser un namespace (quand il n'est pas défini par défaut*
+```xquery
+	tei:titleStmt/tei:title
+```
+
+
+---
+**expressions conditionnelles - `if-tgen-else`**
+- **syntaxe** : `if _expr_ then _expr_ else _expr_`
+- *exemple*
+```xquery
+	for $city in doc("db/tp/mondial.xml")//city
+	return
+		if ($city/population/text()>30000)
+		then <grande_ville>{$city/name/text()}</grande_ville>
+		else <ville>{$city/name/text()}</ville>
+```

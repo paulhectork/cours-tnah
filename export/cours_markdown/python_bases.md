@@ -91,7 +91,24 @@ if 5 > 2:
 - Il est utilisé quand la syntaxe du code nécessite de fournir une condition ou une boucle mais qu'on ne veut pas que celle-ci exécute du code.<br>``
 for a in b:
     pass``
-
+	
+	
+---
+**la variable `self`**
+- une variable qui **contient l'instance en cours**
+- *exemple: la fonction `replace`, qui modifie la chaîne de caractère sur laquelle elle est appelée* 
+```python
+class str():
+        def replace(self, string_to_replace, replacemen_string):
+				return self;
+```
+	
+	
+---
+**Convention de noms de variables**
+- **tout en minuscules** : noms de variables normales et de fonctions
+- **majuscule au début** : nom de classe d'objet
+- **capital camel case** : nom d'erreur
 
 ---
 **Parser** : interpréter la syntaxe spécifique d’un langage pour pouvoir interagir avec un contenu
@@ -1217,6 +1234,7 @@ https://python-packaging-tutorial.readthedocs.io/en/latest/setup_py.html
 			- un fichier `__init__.py`
 			- le script de configuration de l'application: `app.py`
 			- les routes utilisées par flask : `routes.py`
+			- les variables constantes, dans un fichier `constantes.py` (pour stocker, par exemple, le sel pour l'encryptage)
 		- un **package de modules** (`modeles/`)utilisés par l'application, organisés par types de modules (un module utilisateur `utilisateurs.py`, un module de données scientifiques `donnees.py`)
 		- un **dossier `static/`** pour les données statiques (utilisées pour la mise en page: css, fonts, js, images...)
 		- un **dossier `templates/`**, contenant les templates jinja, avec à la racine, le template `conteneur.html` et ensuite des sous-dossiers par type de pages et pour les partials (métadonnées etc)
@@ -1261,7 +1279,12 @@ https://python-packaging-tutorial.readthedocs.io/en/latest/setup_py.html
 ---
 # `try` ... `except` ... `raise`: tester et gérer des erreurs
 
-**Erreurs en Python** = `exceptions` qui, en temps normal, stoppent l'exécution du code. `try` et `except` permettent de tester et de gérer des erreurs sans stopper l'exécution du code: le bloc de code `try` s'exécute; si il n'y a pas d'erreurs, tout va bien, sinon le bloc `except` se lance. Une **structure `try...except` exécute le code dans `try` jusqu'à la première erreur**; ensuite, c'est `except` qui s'exécute pour le reste du code.
+**Erreurs en Python** = `exceptions` qui, en temps normal, stoppent l'exécution du code. 
+- **`Exception`** : catégorie générale des erreurs e, python (`except Exception as ...`)
+- ensuite, il y a **plein de types d'erreurs**
+- **retourner le type d'erreur** (pas une bonne pratique) : `str(type(erreur))`, avec `erreur` le nom de variable qui stocke l'erreur
+
+`try` et `except` permettent de tester et de gérer des erreurs sans stopper l'exécution du code: le bloc de code `try` s'exécute; si il n'y a pas d'erreurs, tout va bien, sinon le bloc `except` se lance. Une **structure `try...except` exécute le code dans `try` jusqu'à la première erreur**; ensuite, c'est `except` qui s'exécute pour le reste du code.
 
 - **`try`** - exécuter un bloc de code pour jusqu'à ce qu'il soulève une erreur
 - **`except`** - bloc de code à exécuter si `try` soulève des erreurs

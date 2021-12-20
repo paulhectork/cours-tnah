@@ -14,7 +14,7 @@
 
 * * *
 
-# `CSV`
+# `CSV`, TON TABLEUR EN MOINS BEAU
 
 - **`csv.reader(file, dialect, **fmtparams)`** : lire le contenu d’un csv
     - `file` : fichier ouvert en mode lecture
@@ -57,7 +57,7 @@
 
 
 ---
-# LES REQUÊTES HTTP ET LE MODULE `REQUESTS`
+# POSER DES QUESTIONS À INTERNET : `REQUESTS` ET LES REQUÊTES HTTP
 
 **structure du web et requêtes**
 
@@ -157,7 +157,7 @@ dépendance à installer via `pip install`
 
 
 ---
-# LES CLI ET `CLICK`
+# TU CRITIQUES MAIS TU `CLICK`
 
 **Les CLI**
 - **outil à utiliser en terminal**, sans interface graphique (=/= GUI)
@@ -331,7 +331,7 @@ dépendance à installer via `pip install`
 
 
 ---
-# `FLASK` - CRÉER UNE APPLICATION WEB
+# `FLASK` - UNE APPLICATION WEB EN BOUTEILLE
 https://flask.palletsprojects.com/en/2.0.x/
 
 **bases**
@@ -442,6 +442,8 @@ https://flask.palletsprojects.com/en/2.0.x/quickstart/#routing
 	- permet de générer une route vers la fonction `lieu` (une fonction qui prend un argument `place_id` qui est une clé de dictionnaire et qui retourne la valeur associée à la clé) et de donner à `plaxe_id` la valeur de `lieu_id`, une variable définie dans une boucle
 	- effet : `url_for()` permet de créer un index qui, en bouclant sur un dictionnaire, associe à chaque clé du dictionnaire un lien vers une page contenant les valeurs associées à la clé (les infos sur une ville)*
 
+***toujours utiliser `url_for()` pour créer des liens entre les pages sinon on va se faire taper sur les doigts ouhloulou***
+
 
 ---
 **templates `jinja` - lier des blocs, héritage, `extends` et `include`**
@@ -486,7 +488,7 @@ https://flask.palletsprojects.com/en/2.0.x/quickstart/#routing
 
 
 ---
-# `FLASK_SQLALCHEMY` - FLASK ET SQL EN PYTHON
+# `FLASK_SQLALCHEMY` - SQL EN FLASQUE
 
 https://flask-sqlalchemy.palletsprojects.com/en/2.x/*
 
@@ -569,34 +571,86 @@ il faut créer un modèle (une classe python qui reprenne la structure d’une t
     		place_type = db.Column(db.String(45))
 	```
 
-- **les requêtes** - toutes les requêtes se font sur une table, que l'on appelle comme dans le modèle défini avec `class`
-	- **`.query`** : lancer une requête SELECT
-	- **`.filter()`** : filtrer les résultats par un critère (équivalent de WHERE)
+
+---
+**les requêtes et les filtres de base** - toutes les requêtes se font sur une table, que l'on appelle comme dans le modèle défini avec `class`
+- **`.query`** : lancer une requête SELECT
+- **`.filter()`** : filtrer les résultats par un critère (équivalent de WHERE)
 		- en SQL, le filtrage sur des données se fait en comparant une donnée avec une valeur => avec flasksql, c'est la même chose mais on utilise les opérateurs python:
-		- **syntaxe**: `Modelname.query.filter(Modelname.column=="value")` (on peut remplacer `==` par un autre opérateur etc)
-	- **`.get(n)`** : récupérer une entrée par numéro d'identifiant `n`
-	- **`.like()`** : faire une requête LIKE et filtrer ses résultats avec un critère approximatif
-		- **syntaxe** : `Modelname.query.filter(Modelname.comun.like("%value%"))`
-		- **tldr** : s'utilise dans un filtre `.filter()` et permet d'utiliser les wildcards `%`
-	- **`.all()`** : récupérer tous les résultats d'une requête
-	- **`.first()`** : ne récupérer que le premier résultat
-	- **`.count()`** : compter les résultats (aka récupérer le nombre de résultats)
-	- **`.order_by()`** : ordonner les résultats
-		- `.order_by([...].desc())` : ordre descendant
-		- `.order_by([...].asc())` : ordre ascendant
-	- *exemples*
-		- `lieux = Place.query.all()`
-		- `cinq = Place.query.get(5)`
-		- `settlements = Place.query.filter(Place.place_type=="settlement").order_by(Place.place_nom.desc()).all()`
+	- **syntaxe**: `Modelname.query.filter(Modelname.column=="value")` (on peut remplacer `==` par un autre opérateur etc)
+- **`.get(n)`** : récupérer une entrée par numéro d'identifiant `n`
+	- **`get_or_404(n)`** : récupérer une entrée par numéro d'identifiant `n` ou lancer une erreur 404 si aucune entrée ne correspond à cet identifiant (si rien n'a cette clé primaire quoi)
+- **`.like()`** : faire une requête LIKE et filtrer ses résultats avec un critère approximatif
+	- **syntaxe** : `Modelname.query.filter(Modelname.comun.like("%value%"))`
+	- **tldr** : s'utilise dans un filtre `.filter()` et permet d'utiliser les wildcards `%`
+
+
+---
+**trier les résultats d'une requête**
+- **`.all()`** : récupérer tous les résultats d'une requête
+- **`.first()`** : ne récupérer que le premier résultat
+	- **`.first_or_404()`**
+- **`.limit(n)`** : n'afficher que les `n` premiers résultats ; à utiliser après le `.filter()` et avant `.all()`, qui permet d'afficher tous les `n` résultats
+- **`.order_by()`** : ordonner les résultats en fonction d'un nom de colonne
+	- `.order_by([...].desc())` : ordre descendant
+	- `.order_by([...].asc())` : ordre ascendant (par défaut)
+	- **ordonner avec plusieurs critères** : `.order_by([...], [...])`
+
+
+---
+**combiner les filtres:  `db.and_()`, `db.or_()`**
+- **`db.and_()`** permet de faire des **requêtes AND**
+- **`db.or_()`** permet de faire des **requêtes OR**
+- **syntaxe** : on sépare les filtres par des `,`
+	- `.filter(db.and_(filtre1, filtre2))`
+	- `filter(db.or_(filtre1, filtre2))`
+	- on peut **combiner les and et or**, en faisant un `or` dans un `and` ou inversement : `.filter(db.and_(db.or_(filtre1, filtre2), db.or_(filtre3, filtre4)))` (le mal de crâne vient est offert)
+
+---
+**les fonctions d'aggrégation**
+- **`.count()`** : compter les résultats (aka récupérer le nombre de résultats)
+
+
+---
+***une pile d'exemples pour espérer comprendre***
+- *récupérer toutes les entrées de la table Place : `lieux = Place.query.all()`*
+- *récupérer un élément par son `id` : `cinq = Place.query.get(5)`*
+- *requête complexe et `order_by()` : `settlements = Place.query.filter(Place.place_type=="settlement").order_by(Place.place_nom.desc()).all()`*
+- *double `.order_by()` : `data = Place.query.filter(Place.place_type=="settlement").order_by(Place.place_nom.desc(), Place.place_nom.desc()).all()`*
+- *combiner OR et AND : requêter tous les endroits dont les coordonnées géographiques montrent qu'ils sont situées en France métropolitaine* :
+	- `.between(int1, int2)` sert à faire ressortir les résultats contenus entre 2 valeurs extrêmes
+	```python
+		minLat2, minLong2, maxLat2, maxLong2 = -4.7625, 42.3404785156, 8.14033203125, 51.0971191406 #longitudes et latitudes encadrant la France métropolitaine
+
+		#la requête sous vos yeux ébahis
+		data = Place.query.filter(db.or_(
+    	db.and_(
+				Place.place_longitude.between(minLong, maxLong),
+        Place.place_latitude.between(minLat, maxLat)
+    	),
+    	db.and_(
+        Place.place_longitude.between(minLong2, maxLong2),
+        Place.place_latitude.between(minLat2, maxLat2)
+    	)
+		)).order_by(Place.place_nom.desc(), Place.place_nom.desc()).all()
+
+		#faire ressortir les résultats
+		for lieu in data:
+    	print(lieu.place_nom, lieu.place_description)
+	```
+
+
+---
+**faire quelque chose des résultats**
 - **afficher les résultats d'une requête** : 
 	- **`request_name.column_name`** : on stocke le résultat de la requête dans une variable et on utilise le nom de colonne que l'on veut afficher comme attribut de cette variable
 	- utiliser des **boucles** pour traduire le résultat
-	- *exemple* :
+	- *exemple : soit une requête `lieu` qui récupère toutes les noms de lieux dans la table `Place`*
 		```python
 			for lieu in lieux:
 				print(lieu.place_nom, lieu.place_type)
 		```
-- **lire une requête `flask_sqlalchemy` en SQL** : soit une variable `requete` stockant une requête, il suffit de faire: `print(requete)`
+- **lire une requête `flask_sqlalchemy` avec la syntaxe SQL** : soit une variable `requete` stockant une requête, il suffit de faire: `print(requete)`
 - **intégrer les résultats d'une requête dans une application utilisant une base de données**
 	```python
 		#importer ses librairies
@@ -651,7 +705,12 @@ il faut créer un modèle (une classe python qui reprenne la structure d’une t
 		- `request.args.get()` - traiter la recherche : associer la recherche de l'utilisateur à la méthode http get et donner `None` comme valeur par défaut à cette requête (si aucune requête est lancée par l'utilisateur, rien n'a lieu quoi)
 		- `if motclef:` - si une recherche a été lancée par l'utilisateurice, la traduire en recherche SQL
 		- recherche rapide => requête SQL `.like()` lancée (pour avoir des résultats proches de la requête)
-	```python
+- tant que tous les formulaires de recherche du même type (recherche rapide) renvoient à la même page, on peut **multiplier les formulaires** : il suffit de donner le même argument `name=""` à la balise `<input>` pour que la recherche soit traitée par `request.args`
+
+
+---
+**une recherche retournant tous les résultats sur une seule page**
+```python
 		@app.route("/recherche")
 		def recherche():
     	motclef = request.args.get("keyword", None)
@@ -661,7 +720,271 @@ il faut créer un modèle (une classe python qui reprenne la structure d’une t
         resultats = Place.query.filter(Place.place_nom.like("%{}%".format(motclef))).all()
         titre = "Résultat pour la recherche `" + motclef + "`"
     return render_template("pages/recherche.html", resultats=resultats, titre=titre)
+```
+- **documentation à la bien sisi** : https://flask.palletsprojects.com/en/2.0.x/quickstart/#accessing-request-data
+- **documentation dodue mal de crâne** : https://flask.palletsprojects.com/en/2.0.x/api/#incoming-request-data 
+	
+	
+---
+**une recherche retournant les résultats avec pagination**
+- **en bref** : créer un objet pagination avec `paginate` et le mobiliser dans le template avec `.iter_pages()`
+- **les méthodes de l'objet pagination**
+	- `items` : les résultats de la page actuelle
+	- `iter_pages` permet de construire une pagination en html
+	- `page` retourne le numéro de la page actuelle
+	- `pages` retourne le nb total de pages
+	- `total` retourne le nb total de résultats
+	- `prev_num` retourne le numéro de la page précédente,  `next_num` retourne le numéro de la page suivante
+	- `has_prev` retourne `True` si il existe une page précédente, `has_next` retourne `True` si il existe une page suivante
+- **dans le script python (`route.py)`, `.paginate()`** est une méthode flask_sqlalchemy qui permet de paginer les résultats d'une requête sqlalchemy
+	- **syntaxe** : `.paginate(page=..., per_page=...)`, avec `page` le numéro de la page active et `per_page` le nombre de résultats à afficher par page
+	- **utilisation** : 
+		- à mettre **à la place de `.all()`** dans une requête sqlalchemy
+		- pour l'utiliser de manière dynamique, on donne au paramètre `page` une variable qui permet de gérer la pagination de façon dynamique : *si on clique sur la page 2 des résultats dans l'appli, alors la valeur 2 est assignée à la variable `page`, et donc des résultats pour la page 2 sont retournés*
+- **dans le template (`recherche.html`), construire la pagination en itérant sur `iter.pages()`**, une méthode de l'objet pagination qui permet de générer les différentes pages de la pagination
+	- **syntaxe** : `pagination.iterpages(left_edge=a, left_current=b, right_current=c, right_edge=d)`, avec
+		- `a, b, c, d` des nombres entiers
+		- `left_edge` le nombre de pages à afficher au début de la pagination
+		- `left_current` le nombre de pages à afficher à gauche de la page courante
+		- `right_current` le nombre de pages à afficher à droite de la page courante
+		- `right_edge` le nombre de pages à afficher à la fin de la pagination
+	- **utilisation** : `{%- for page in pagination.iter_pages() %}` permet de générer une pagination dans le template html, en générant une variable `page` qui est passée à la fonction `.paginate()` (dans le script python) pour générer des paginations de façon cool et dynamique
+- **exemple** : c'est assez dodu, donc aller voir les scripts commentés dans **`cours-flask/exemple15`**
+
+
+---
+**insertions `flask_sqlalchemy`**
+- **créer une fonction pour ajouter des données** : en `sqlalchemy`, une nouvelle ligne d'une base de données = un objet, instance d'une classe particulière => l'ajout de données correspond à une fonction qui permette de créer un objet en suivant la structure d'une classe
+- cette fonction est une **`@staticmethod`** : une méthode qui s'applique à une classe entière
+- **préparer l'insertion : `db.session.add(la_chose_à_envoyer)`** (pour plus de facilité : stocker les données à envoyer dans une vériable et faire `db.session.add(variable_name)`)
+- **envoyer ses données : `db.session.commit()`** : après avoir ajouté toutes les données avec `db.session.add`,
+	- les insertions ont lieu en 2 temps, comme avec Git
+- **utiliser `try...except`** pour eviter l'ajout de données framgnetaires
+
+**en bref**
+```python
+class Classname (db.model):
+	#le modèle de la classe
+	
+	@staticmethod
+	def add_data(var1, var2, varN):
+		
+		#ici, on peut ajouter du code pour renvoyer des erreurs si toutes les infos ne sont pas fournies)
+		
+		#dans la fonciton, on crée une variable 'objet' dans laquelle on stocke toutes les données à ajouter
+		objet = Classname(
+			info1=var1,
+			info2=var2,
+			infoN=varN)
+		
+		#on fait une insertion avec un try except à la bien
+		try:
+			db.session.add(objet)
+			db.session.commit()
+			return True, objet
+		except Exception as erreur:
+			return False, [str(erreur)]
+```
+	
+
+
+---
+**la gestion des utilisateurices, au niveau de la `class User` dans un script `utilisateurs.py`**
+
+
+**créer une `class` d'utilisateurices** dans laquelle on stockera les informations sur les utilisateurs (id, nom, login, email, mdp)
+- on donne à cette classe **2 attributs: `db.Model` et `UserMixin`**
+	- **`db.Model`** permet de faire comprendre que cette classe est un modèle de table SQL; en d'autres termes, que `User` est une spécification de la classe `db.Model`
+	- **`UserMixin`** est la classe fournissant des données de base qui permettent au plugin `flask_login` de gérer la connexion des utilisateurices; en d'autres termes, ce paramètre précise que `User` est une spécification de la classe `UserMixin`, qui a 4 proprpiétés:
+		- `is_authenticated` : retourne `True` si l'utilisateurice est connecté
+		- `is_active` retourne `True` si l'utilisateurice est actif
+		- `is_anonymous` retourne `False` si l'utilisateurice n'est pas anonyme
+		- `get_id(identifier)` retourne un utilisateur selon sa clé primaire
+		- ces méthodes sont un **gloubiboulga technique** nécessaire au fonctionnement de `flask_login`, on rentre pas dans les détails
+		- il fait **réecrire `get_id()`** en méthode de `User` : dans le code source, `UserMixin` a une propriété `get_id` qui retourne l'attribut `.id` d'un objet. Or, dans notre cas, `User` n'a pas d'attribut `.id`, mais un attribut `.user_id` => on doit réécrire la propriété `get_id` pour que UserMixin fonctionne avec la classe `User` :
+ 			- (avec `self` est la variable stockant l'utilisateurice courant.e ; la fonction ci dessous permet donc, pour un utilisateur, de retourner sa propriété `user_id`, soit son identifiant)
+		```python
+			def get_id(self):
+				return self.user_id
+		```
+		
+**créer une méthode pour ajouter un nouvel utilisateurice : `def creer(...)`**, en `staticmethod` de cette classe (à l'aide de la méthode d'insertion SQL via `flask_sqlalchemy` vue au dessus)
+- on utilise un **système de gestion des erreurs** : 
+	- créer une liste vide `erreurs` ; si une info n'est pas rajoutée au formulaire, on ne crée âs d'utilisateur et on renvoie les erreurs que l'utilisateur a fait
+	- à l'aide de la variable `uniques`, gérer l'utilisation d'infos uniques: si une info non-répétable (email, login) est déjà présente dans la bdd (si un autre compte utilise le même mail ou login), renvoyer une erreur à l'utilisateurice
+- si tout va bien, **faire une injection sql avec un `try...except`**
+
+**créer une méthode pour se connecter : `def identification(...)`**, en `staticmethod` de la classe `User`
+- en fait c'est assez simple : on récupère un objet `User` dans la DB en fonction du login grâce à une requête (aka, une ligne dans la db sql) et on compare le mdp fourni au moment de la connexion avec le hash généré à partir du mdp de cet objet `User`
+
+**créer une fonction qui permette de récupérer un utilisateur en fonction de son identifiant**, pour la gestion des connexions (je comprends pas trop à quoi ça sert)
+
+
+```python
+	class User(UserMixin, db.Model):
+		user_id = db.Column(db.Integer, unique=True, nullable=False, primary_key=True, autoincrement=True)
+		user_nom = db.Column(db.Text, nullable=False)
+		user_login = db.Column(db.String(45), nullable=False, unique=True)
+		user_email = db.Column(db.Text, nullable=False)
+		user_password = db.Column(db.String(100), nullable=False)
+
+		def get_id(self):
+		""" Retourne l'id de l'objet actuellement utilisé
+		:returns: ID de l'utilisateur
+		:rtype: int
+		"""
+				return self.user_id
+
+		@staticmethod
+		def creer(login, email, nom, motdepasse):
+		""" Crée un compte utilisateur-rice. Retourne un tuple (booléen, User ou liste).
+		Si il y a une erreur, la fonction renvoie False suivi d'une liste d'erreur
+		Sinon, elle renvoie True suivi de la donnée enregistrée
+		:param login: Login de l'utilisateur-rice
+		:param email: Email de l'utilisateur-rice
+		:param nom: Nom de l'utilisateur-rice
+		:param motdepasse: Mot de passe de l'utilisateur-rice (Minimum 6 caractères)
+		"""
+			erreurs = []
+	
+			#gestion des infos manquantes
+			if not login:
+    		erreurs.append("Le login fourni est vide")
+			if not email:
+    		erreurs.append("L'email fourni est vide")
+			if not nom:
+				erreurs.append("Le nom fourni est vide")
+			if not motdepasse or len(motdepasse) < 6:
+				erreurs.append("Le mot de passe fourni est vide ou trop court")
+			
+			#gestion des infos non répétables
+			uniques = User.query.filter(db.or_(User.user_email == email, User.user_login == login)).count()
+			if uniques > 0:
+				erreurs.append("L'email ou le login sont déjà inscrits dans notre base de données")
+		
+			# Si on a au moins une erreur
+			if len(erreurs) > 0:
+				return False, erreurs
+
+			# Sinon, on crée un utilisateur
+			utilisateur = User(
+				user_nom=nom,
+				user_login=login,
+				user_email=email,
+			user_password=generate_password_hash(motdepasse)
+			)
+		
+			#on fait un commit
+			try:
+				db.session.add(utilisateur)
+				db.session.commit()
+			# On renvoie l'utilisateur
+				return True, utilisateur
+		
+			except Exception as erreur:
+				return False, [str(erreur)]
+		
+		def identification(login, motdepasse):
+		""" Identifie un utilisateur. Si cela fonctionne, renvoie les données de l'utilisateur.
+		:param login: Login de l'utilisateur
+		:param motdepasse: Mot de passe envoyé par l'utilisateur
+		:returns: Si réussite, données de l'utilisateur. Sinon None
+		:rtype: User or None
+		"""
+			utilisateur = User.query.filter(User.user_login == login).first()
+			if utilisateur and check_password_hash(utilisateur.user_password, motdepasse):
+				return utilisateur
+			return None
+	
+	@login.user_loader
+	def trouver_utilisateur_via_id(identifiant):
+		return User.query.get(int(identifiant))
+
+```
+
+
+---
+**au niveau des routes : formulaire de création de comptes, de connexion et de déconnexion**
+
+**formulaire et fonction pour créer un compte**
+- **tldr** : je détaille ce qui se passe dans l'exemple en dessous
+	- créer un **template avec un formulaire d'inscription**, avec 1 balise `<input>` par type de donnée (mail, mdp, login)
+		- **modèle** : `<input type="text" name="zzz" placeholder="xxx"/>`, avec `name` le nom de variable récupéré par la fonction et `placeholder` le texte qui s'affiche par défaut sur le formulaire
+	- créer **route avec une fonction** qui récupère les informations d'un formulaire et les passe à la fonction `@staticmethod` pour créer un objet instance d'une classe (autrement dit : pour créer une ligne d'une table SQL)
+	- **`methods=["GET", "POST"]`** (en paramètre de la route) montre que la route accepte les méthodes get et post
+	- **`request.form.get()`** permet de récupérer des données d'un formulaire d'une balise `<input>`, en prenant pour argument la valeur de l'attribut ` name=""` de cette baluse (aka, permet de cibler une balise précise dans le HTML en fonction de son attribut name)
+	- **`flash(str)`** est une fonction Flask qui permet de retourner à l'utilisateurice une chaîne de caractères : *the flashing system basically makes it possible to record a message at the end of a request*
+	- **`return redirect('/')`** permet de renvoyer l'utilisateurice sur la page d'accueil
+	- **cf exemple en dessous**
+- **cf `cours-flask/exemple16` tbqh**
+- *exemple*
+	```python
+		from flask import flash, redirect, request
+		@app.route("/register", methods=["GET", "POST"])
+		def inscription():
+			""" Route gérant les inscriptions
+			"""
+			# Si on est en POST, cela veut dire que le formulaire a été envoyé
+			if request.method == "POST":
+				statut, donnees = User.creer(
+				login=request.form.get("login", None),
+				email=request.form.get("email", None),
+				nom=request.form.get("nom", None),
+				motdepasse=request.form.get("motdepasse", None))
+				#si tout va bien, on met un ptit message et on renvoie sur la page d'accueil
+				if statut is True:
+					flash("Enregistrement effectué. Identifiez-vous maintenant", "success")
+					return redirect("/")
+				#sinon, on se tape une erreur
+				else:
+					flash("Les erreurs suivantes ont été rencontrées : " + ",".join(donnees), "error")
+					return render_template("pages/inscription.html")
+			else:
+					return render_template("pages/inscription.html")
 	```
-	- tant que tous les formulaires de recherche du même type (recherche rapide) renvoient à la même page, on peut **multiplier les formulaires** : il suffit de donner le même argument `name=""` à la balise `<input>` pour que la recherche soit traitée par `request.args`
-	- **documentation à la bien sisi** : https://flask.palletsprojects.com/en/2.0.x/quickstart/#accessing-request-data
-	- **documentation dodue mal de crâne** : https://flask.palletsprojects.com/en/2.0.x/api/#incoming-request-data 
+	
+**formulaire et fonction de connexion**
+- on **importe les modules** :
+	- dans le module `flask_login`, `current_user` (qui permet d'identifier l'utilisateurice actuel) et `login_user` (qui permet à un.e utilisateurice de se connecter)
+	- du module `app`, la variable `login` qui contient `LoginManager(app)` (une fonction de `flask_login` qui permet de gérer la connexion des utilisateurices) 
+- créer un **template HTML avec des balises `<input>`**, comme pour les formulaires de création de compte; l'attribut `name=""` permet de le cibler comme il faut
+- si l'utilisateurice est **déjà connecté.e**, le renvoyer à la page d'accueil
+- si il n'est **pas connecté**, alors le formulaire envoie des données avec la méthode `POST` ; on appelle alors la méthode `User.identification()` pour vérifier que les infos fournies par l'utilisateurice correspondent à des entrées dans la db (à des vrais identifiants, quoi)
+- on **crée une redirection vers la page de connexion** quand on essaye d'accéder à une page qui demande d'être connecté, avec `login.login_view`
+	```python
+		from flask_login import login_user, current_user
+		from .app import login
+		@app.route("/connexion", methods=["POST", "GET"])
+		def connexion():
+		""" Route gérant les connexions
+		"""
+			if current_user.is_authenticated is True:
+				flash("Vous êtes déjà connecté-e", "info")
+				return redirect("/")
+			# Si on est en POST, cela veut dire que le formulaire a été envoyé
+			if request.method == "POST":
+				utilisateur = User.identification(
+					login=request.form.get("login", None),
+					motdepasse=request.form.get("motdepasse", None))
+				if utilisateur:
+					flash("Connexion effectuée", "success")
+					login_user(utilisateur)
+					return redirect("/")
+				else:
+					flash("Les identifiants n'ont pas été reconnus", "error")
+
+			return render_template("pages/connexion.html")
+		login.login_view = 'connexion'
+	```
+	
+**gérer la déconnexion**
+- on utilise juste la **fonction `logout_user`** du module `flask_login()` :
+	```python
+		from flask_login import logout_user, current_user
+		@app.route("/deconnexion", methods=["POST", "GET"])
+		def deconnexion():
+			if current_user.is_authenticated is True:
+			logout_user()
+		flash("Vous êtes déconnecté-e", "info")
+		return redirect([l\'url_for() doit renvoyer vers les utilisateurs])
+	```

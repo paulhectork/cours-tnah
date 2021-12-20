@@ -150,7 +150,9 @@ Les environnements servent à contenir des grosses parties de texte
 	- **deuxième** : `2\eme{}`, `\secundo`
 	- **autres systèmes de numérotation** : `\no`, `\no`, `\nos`, `\No`, `\Nos`
 - **guillemets**
-	- **guillemets français** : `\og texte \fg{}`
+	- **guillemets français** : 
+		- charger la langue française : `\usepackage[french]{babel}`
+		- utiliser og et fg : `\og texte \fg`
 	- **guillemets anglais** : `''`
 - **cadradins**
 	- **quart cadratin** :`-`
