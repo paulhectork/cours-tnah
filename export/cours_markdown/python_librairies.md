@@ -545,14 +545,15 @@ https://flask-sqlalchemy.palletsprojects.com/en/2.x/*
 	```
 	
 	---
-**gérer les requêtes automatiquement**
+**créer un modèle de table**
 
 il faut créer un modèle (une classe python qui reprenne la structure d’une table de la bdd) et requêter ce modèle avec les méthodes de SQLAlchemy :
 - **définir le modèle** : 
 	- le modèle est défini comme une **`class`**
 	- son nom prend une **majuscule** pour être lisibile,
 	- le modèle doit avoir le **même nom que la table** dont il est dérivé
-	- **syntaxe** pour renseigner les champs du modèle*(aka, les colonnes du tableau): `nom_conolle = colonne(data-type, params)` (cf exemples)
+	- **syntaxe** pour renseigner les champs du modèle*(aka, les colonnes du tableau): `nom_colonne = colonne(data-type, params)` (cf exemples)
+	- **nommer la table sql** (dans le cas où on crée une nouvelle table) : `__tablename__ = "table_name"`
 	- **data types** pour les modèles:
 		- `.String(n)` : chaîne de caractères de longueur maximale `n`
 		- `.Text` - texte sans longueur maximale
@@ -563,12 +564,13 @@ il faut créer un modèle (une classe python qui reprenne la structure d’une t
 	- *exemple - pour comprendre la syntaxe:
 	```python
 		class Place(db.Model):
-    		place_id = db.Column(db.Integer, unique=True, nullable=False, primary_key=True, autoincrement=True)
-    		place_nom = db.Column(db.Text)
-    		place_description = db.Column(db.Text)
-    		place_longitude = db.Column(db.Float)
-    		place_latitude = db.Column(db.Float)
-    		place_type = db.Column(db.String(45))
+			__tablename__ = "place"
+			place_id = db.Column(db.Integer, unique=True, nullable=False, primary_key=True, autoincrement=True)
+			place_nom = db.Column(db.Text)
+			place_description = db.Column(db.Text)
+			place_longitude = db.Column(db.Float)
+			place_latitude = db.Column(db.Float)
+			place_type = db.Column(db.String(45))
 	```
 
 
@@ -609,6 +611,27 @@ il faut créer un modèle (une classe python qui reprenne la structure d’une t
 ---
 **les fonctions d'aggrégation**
 - **`.count()`** : compter les résultats (aka récupérer le nombre de résultats)
+- **`group_by()`** : regrouper les données en fonction d'un critère passé en argument
+- **`having()`** : comme `.filter()`, mais permet de travailler sur les fonctions d'aggrégation
+
+
+---
+**requêter à travers plusieurs tables : `.join()`**
+- **syntaxes** : 
+	- **quand la relation entre les 2 tables est explicite** : `session.query(Table1).join(Table2)` (aka quand, dans le modèle de données, les 2 tables ont une colonne avec un argument `db.ForeignKey`, et que la clé étrangère d'une table renvoie à la clé principale de l'autre)
+	- **avec une clause SQL `ON`** :
+		- **sans `.filter()`** : `session.query(Table1).join(Table2, Table1.clé = Table2.clé` (avec `clé` la colonne des tables SQL grâce auxquelles on trie les données)
+		- **avec `.filter()`** : `session.query(Table1).join(Table2).filter(Table1.clé = Table2.clé)`
+- **joindre plusieurs tables en même temps** : 
+	- **syntaxe** : jointure entre 1 et 2, puis entre 2 et 3:
+	```python
+	session.query(Table1)\
+		.join(Table2).filter(Table1.clé = Table2.clé)\
+		.join(Table3).filter(Table2.clé = Table3.clé)`
+	```
+	-   mais il faut faire attention à l'autre des jointures (*par exemple: soit A B C trois tables, avec une relation entre A et B et une relation entre B et C ; on doit joindre A et B, puis B et C*)
+- **ça peut vite faire chauffer les transactions complexes** => préférer les tables de relation là où on peut
+- **documentation complète** : https://docs.sqlalchemy.org/en/14/orm/query.html#sqlalchemy.orm.Query.join 
 
 
 ---
@@ -638,7 +661,9 @@ il faut créer un modèle (une classe python qui reprenne la structure d’une t
 		for lieu in data:
     	print(lieu.place_nom, lieu.place_description)
 	```
-
+- *jointure avec 2 méthodes équivalentes pour la même requête:
+	- `q = session.query(User).join(Address, User.id==Address.user_id)`
+	- `q = session.query(User).join(Address, User.addresses)`*
 
 ---
 **faire quelque chose des résultats**
@@ -988,3 +1013,79 @@ class Classname (db.model):
 		flash("Vous êtes déconnecté-e", "info")
 		return redirect([l\'url_for() doit renvoyer vers les utilisateurs])
 	```
+
+
+---
+** relations entre les tables**
+- **`db.ForeignKey`** : une option que l'on peut donner à une propriété d'une classe (une ligne dans une table SQL) qui **lie un champ d'une table à un champ d'une autre table** : récupère les infos de l'autre champ et les rajoute à notre table
+	- permet de **gérer la création automatique de clés secondaires**
+	- **syntaxe** : dans la table `Table1`, pour lier avec `Table2` `table2_id = db.Column(db.Integer, db.ForeignKey('table2.id')`
+		- avec `table2_id` la clé extérieure dans Table1 qui renvoie vers Table2 et `table2.id` qui est la clé principale de Table2
+		- on remarque pour **cibler la table externe**, on fait `"nom_de_table_en_sql.nom_de_colonne"` (on écrit tout entre guillemets, on donne le nom de table et de colonne tels qu'ils sont dans SQL, et non dans nos `Class`)
+- **`db.relationship`** : expliciter la relation entre 2 tables
+	- `db.relationship` ne **modifie pas la structure de la table** SQL, elle explicite juste la relation entre des tables pour notre langage de programmation OOP
+	- **prend 2 paramètres** :
+		- **le nom de la classe liée**
+		- **`back_populates`** : un argument optionnel qui renvoie, dans la classe B liée avec `db.relationship`, à la propriété `db.relationship` de la classe B qui renvoie à la classe A (en gros ça sert à lier des propriétés de la classe entre elles, et pas 2 classes entières)
+	- **syntaxe** pour créer un lien entre 2 tables
+	```python
+		class A(db.Model):
+    	propriete_de_relation1 = db.relationship(
+				"B",
+				back_populates="propriete_de_relation2"
+			)
+		class B(db.Model):
+			propriete_de_relation2 = db.relationship(
+				"A",
+				back_populates="propriete_de_relation1"
+			)
+	```
+
+
+---
+**créer une table `Autorship`**
+- la table `Autorship` permet de dire quel utilisateurice a modifié quelle table de la BDD et à quelle date => c'est une **table de relation** entre les classes `User` et `Place` (dans l'ex du cours), 
+	- avec des propriétés **clés externes** (champs contenant une propriété `db.ForeignKey`)
+	- des propriétés **relations explicites** aux autres tables (`db.relationship`)
+	-  une propriété pour **dater** (`db.DateTime` `datetime.datetime.utcnow`)
+- *exemple du cours avec une table `Autorship` liant `User` et `Place`*
+	- *bien sur, il faut que les classes `User` et `Place` aient un lien explicite avec `Autorship` : une propriété `db.relationship("Autorship")` avec un `back_populates`*
+```python
+	import datetime #on importe le module pour dater
+	
+	class Authorship(db.Model):
+		__tablename__ = "authorship"
+		authorship_id = db.Column(db.Integer, nullable=True, autoincrement=True, primary_key=True)
+		authorship_place_id = db.Column(db.Integer, db.ForeignKey('place.place_id'))
+		authorship_user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
+		authorship_date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+		user = db.relationship("User", back_populates="authorships")
+		place = db.relationship("Place", back_populates="authorships")
+```
+
+---
+**update et mise à jour de la BDD - en 4 étapes**
+- **récupérer l'entrée à corriger** et la stocker dans une variable : `var_name = table_name.query.filter(...)`
+- **corriger les données de cette entrée** : `var_name.column_name= "..."`
+- **ajouter l'objet modifié à une session de changement** : `db.session.add(var_name)`
+- **commit** : `db.session.commit()`
+
+- **détails** :
+	- on ne peut **pas modifier les clés primaires** à cause des propriétés de celles ci, ça fouterait le bordel honnêtement
+	- on peut caler un **`try...except`** à la bien, comme avec la création de nv données
+```python
+	# 1.
+	place = Place.query.filter(Place.place_nom.like("%settlement%")).first()
+	# 2.
+	place.place_nom = "Lipara"
+	# 3. 
+	db.session.add(place)
+	# 4.
+	db.session.commit()
+```
+
+
+---
+**`.delete()` et suppression de données de la BDD**
+- la méthode **`.delete()`** permet de supprimer les entrées de la base de donnée ciblées
+- *exemple : `Place.query.get(1).delete()`*
