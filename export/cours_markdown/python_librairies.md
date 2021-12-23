@@ -1108,18 +1108,20 @@ class Classname (db.model):
 			parent_id = Column(Integer, ForeignKey('parent.id'))
 			parent = relationship("Parent", back_populates="child")
 	```
-- **`many to many`** : créer une table d'association entre tableA et tableB :
+- **`many to many`** : créer une table d'association entre tableA et tableB, ajouter des arguments `relationship.back_populates` entre tableA et tableB et créer une relation secondaire vers la table d'association (avec `relationship.secondary`) :
 	```python
 		class Parent(Base):
 			__tablename__ = 'parent'
 			id = Column(Integer, primary_key=True)
-			child = relationship('Child', secondary = association_table)
+			children = relationship('Child', secondary=relationship, back_populates='parents')
 		
 		class Child(Base):
 			__tablename__ = 'child'
 			id = Column(Integer, primary_key=True)
+			parents = relationship('Parent', secondary=relationship, back_populates='children')
 		
 		class Relationship(Base):
+			__tablename__ = 'relationship'
 			child_id = Column(Integer, ForeignKey('child.id'))
 			parent_id = Column(Integer, ForeignKey('parent.id'))
 	```
