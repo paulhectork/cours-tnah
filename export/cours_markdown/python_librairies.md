@@ -521,6 +521,8 @@ https://flask-sqlalchemy.palletsprojects.com/en/2.x/*
 	- **initier la bdd** sous la forme d’un objet sqlalchemy : `db = SQLAlchemy(app)`
 		- on crée un objet SQLAlchemy et on lui donne en argument l’application flask (`app`)
 		- on stocke cet objet dans une variable `db`
+	- **créer une base de donnée selon un modèle : `db.create.all()`** : on définit notre modèle dans un script, puis `db.create.all()` (avec `db` le nom de variable dans laquelle on stocke la bdd)
+	- **supprimer toutes les tables d'une bdd: `db.drop.all()`**
 
 
 ---
@@ -1016,21 +1018,38 @@ class Classname (db.model):
 
 
 ---
-** relations entre les tables**
-- **`db.ForeignKey`** : une option que l'on peut donner à une propriété d'une classe (une ligne dans une table SQL) qui **lie un champ d'une table à un champ d'une autre table** : récupère les infos de l'autre champ et les rajoute à notre table
+**relations entre les tables**
+- **`db.ForeignKey`** : une option que l'on peut donner à une propriété d'une classe (une ligne dans une table SQL) qui **lie un champ d'une table à un champ d'une autre table** : récupère les infos de tableB et les rajoute à tableA
 	- permet de **gérer la création automatique de clés secondaires**
-	- **syntaxe** : dans la table `Table1`, pour lier avec `Table2` `table2_id = db.Column(db.Integer, db.ForeignKey('table2.id')`
-		- avec `table2_id` la clé extérieure dans Table1 qui renvoie vers Table2 et `table2.id` qui est la clé principale de Table2
-		- on remarque pour **cibler la table externe**, on fait `"nom_de_table_en_sql.nom_de_colonne"` (on écrit tout entre guillemets, on donne le nom de table et de colonne tels qu'ils sont dans SQL, et non dans nos `Class`)
+	- **syntaxe** : dans la table `Table1`, pour lier avec `Table2` `table2_id = db.Column(db.Integer, db.ForeignKey('table2.id'))`
+		- avec `table2_id` la clé extérieure dans Table1 qui renvoie vers Table2 et `table2.id` est la clé principale de Table2
+		- on remarque pour **cibler la table externe**, on utilise la syntaxe SQL entre guillemets : `"nom_de_table_en_sql.nom_de_colonne"` (on donne le nom de table et de colonne tels qu'ils sont dans SQL, et non dans nos `Class`)
 - **`db.relationship`** : expliciter la relation entre 2 tables
 	- `db.relationship` ne **modifie pas la structure de la table** SQL, elle explicite juste la relation entre des tables pour notre langage de programmation OOP
-	- **prend 2 paramètres** :
-		- **le nom de la classe liée**
-		- **`back_populates`** : un argument optionnel qui renvoie, dans la classe B liée avec `db.relationship`, à la propriété `db.relationship` de la classe B qui renvoie à la classe A (en gros ça sert à lier des propriétés de la classe entre elles, et pas 2 classes entières)
+	- **paramètres** :
+		- **le nom de la classe liée - obligatoire** (`Authorship`...)
+		- **`back_populates`** : un argument optionnel à placer dans les colonnes  `db.relationship()` de tableA et tableB pour lier les deux tables de façon à ce que la modification d'une table impacte l'autre ; permet **relations bidirectionnelles explicites** (maj de tableA impactent tableB et inversement)
+			- il existe des alternatives à `back_populates`, mais ce cours est bien assez complexe comme ça (`backref`, qui ne se place que sur la tableA et renvoie à la tableB; 2 options équivalentes, mais `backref` est moins explicite)
+		- **`foreign_keys`** : permet de préciser la clé externe à utiliser dans une colonne `db.relationship()`. À utiliser quand il y a **plusieurs manières de construire une relation entre des tables ; permet de désambiguïser** (2 colonnes de tableA qui renvoient à tableB => précise comment faire la jointure)
+			- syntaxe: 
+			```python
+				class Customer(Base):
+					__tablename__ = 'customer'
+					id = Column(Integer, primary_key=True)
+					name = Column(String)
+
+					billing_address_id = Column(Integer, ForeignKey("address.id"))
+					shipping_address_id = Column(Integer, ForeignKey("address.id"))
+
+					billing_address = relationship("Address", foreign_keys=[billing_address_id])
+					shipping_address = relationship("Address", foreign_keys=[shipping_address_id])
+			```
+		- **`primary_join`** : préciser la clé de jointure primaire entre 2 tables
+	- **documentation complète** : https://docs.sqlalchemy.org/en/14/orm/relationship_api.html#sqlalchemy.orm.relationship
 	- **syntaxe** pour créer un lien entre 2 tables
 	```python
 		class A(db.Model):
-    	propriete_de_relation1 = db.relationship(
+			propriete_de_relation1 = db.relationship(
 				"B",
 				back_populates="propriete_de_relation2"
 			)
@@ -1041,9 +1060,74 @@ class Classname (db.model):
 			)
 	```
 
-
 ---
-**créer une table `Autorship`**
+**configurer différents types de relations : `one to many`, `many to one`, `one to one`, `many to many`**
+
+(ici, on utilise la méthode `back_populates` pour avoir des relations bidirectionnelles : la table `parent` est la première, la table `enfant` est la deuxième : dans `one to many`, une entrée de la table parent peut avoir plusieurs relations avec la table enfant)
+- comment lier tous les trucs one to many... : 
+	- one to many : un élément de tableA peut avoir plusieurs éléments liés dans tableB
+	- many to one : un élément de tableA a plusieurs éléments liés dans tableB
+	- one to one : un élément de tableA n'a qu'un élément lié dans tableB
+	- many to many : plusieurs éléments de tableA ont plusieurs éléments liés dans tableB
+- **`one to many`** : (relation parent-enfant = one to many ; relation enfant-parent = many to one) placer la clé externe sur la table enfant et connecter les 2 tables en utilisant `relationship.back_populates`
+	```python
+		class Parent(Base):
+			__tablename__ = 'parent'
+			id = Column(Integer, primary_key=True)
+			children = relationship("Child", back_populates="parent")
+
+		class Child(Base):
+			__tablename__ = 'child'
+			id = Column(Integer, primary_key=True)
+			parent_id = Column(Integer, ForeignKey('parent.id'))
+			parent = relationship("Parent", back_populates="children")
+	```
+- **`many to one`** : placer la clé externe sur la table parent et lier les deux tables en utilisant `relationship.back_populates`:
+	```python
+		class Parent(Base):
+			__tablename__ = 'parent'
+			id = Column(Integer, primary_key=True)
+			child_id = Column(Integer, ForeignKey('child.id'))
+			child = relationship("Child", back_populates="parents")
+
+		class Child(Base):
+			__tablename__ = 'child'
+			id = Column(Integer, primary_key=True)
+			parents = relationship("Parent", back_populates="child")	
+	```
+- **`one to one`**  : équivalent d'une relation one to many/many to one (comme dans l'exemple 1), mais en donnant l'attribut `uselist=False` à la colonne `relationship` de la table table parent :
+	```python
+		class Parent(Base):
+			__tablename__ = 'parent'
+			id = Column(Integer, primary_key=True)
+			child = relationship("Child", back_populates="parent", uselist=False)
+
+		class Child(Base):
+			__tablename__ = 'child'
+			id = Column(Integer, primary_key=True)
+			parent_id = Column(Integer, ForeignKey('parent.id'))
+			parent = relationship("Parent", back_populates="child")
+	```
+- **`many to many`** : créer une table d'association entre tableA et tableB :
+	```python
+		class Parent(Base):
+			__tablename__ = 'parent'
+			id = Column(Integer, primary_key=True)
+			child = relationship('Child', secondary = association_table)
+		
+		class Child(Base):
+			__tablename__ = 'child'
+			id = Column(Integer, primary_key=True)
+		
+		class Relationship(Base):
+			child_id = Column(Integer, ForeignKey('child.id'))
+			parent_id = Column(Integer, ForeignKey('parent.id'))
+	```
+	(sinon l'exemple pour la table `Authorship` donné par le prof et qui suit fonctionne aussi)
+	
+---
+**créer une table `Autorship` et les relations `many-to-many`**
+- dans le cas des relations **many-to-many**, on crée une **table de relation** tableC qui fasse le lien entre tableA et tableB
 - la table `Autorship` permet de dire quel utilisateurice a modifié quelle table de la BDD et à quelle date => c'est une **table de relation** entre les classes `User` et `Place` (dans l'ex du cours), 
 	- avec des propriétés **clés externes** (champs contenant une propriété `db.ForeignKey`)
 	- des propriétés **relations explicites** aux autres tables (`db.relationship`)
@@ -1062,6 +1146,10 @@ class Classname (db.model):
 		user = db.relationship("User", back_populates="authorships")
 		place = db.relationship("Place", back_populates="authorships")
 ```
+
+*pour tenter de résumer*
+![732db23fbfc516f33fbf049d4162f230.png](../_resources/732db23fbfc516f33fbf049d4162f230.png)
+
 
 ---
 **update et mise à jour de la BDD - en 4 étapes**
@@ -1089,3 +1177,48 @@ class Classname (db.model):
 **`.delete()` et suppression de données de la BDD**
 - la méthode **`.delete()`** permet de supprimer les entrées de la base de donnée ciblées
 - *exemple : `Place.query.get(1).delete()`*
+
+
+---
+# TU PEUX PAS `UNITTEST`
+(les jeux de mots empirent de librairie en librairie)
+**intro** 
+- les tests, c'est **du `assert` sous stéroïdes**
+- les tests cherchent à vérifier un **ensemble de fonctionnements** :
+	- **le fonctionnement des blocs** programmés, pris séparément, fonctionnent correctement
+	- **l'interaction des blocs** les uns avec les autres
+	- (pour les applications graphiques) **la partie graphique** en front-end de l'application interagit correctement avec le back-end
+	- **les modifications futures** - y compris par des tiers - ne provoquent pas d'erreur
+- **principales librairies de tests python** : 
+	- `unittest` - incluse par défaut dans python
+	- `nosetest` - rétrocompatible avec `unittest`, installable avec `pypi`
+	- `py.test` - +léger, utilise bcp `assert`
+
+
+---
+**créer un test, à la base, c'est quoi?**
+
+
+---
+**les assertions de `unittest`**
+- `assertEqual(a,b)` : a == b
+- `assertNotEqual(a,b)` : a != b
+- `assertTrue(x)` : bool(x) is True
+- `assertFalse(x)` : bool(x) is False
+- `assertIs(a,b)` : a is b
+- `assertIsNot(a,b)` : a is not b
+- `assertIsNone(x)` : x is None
+- `assertIsNotNone(x)` : x is not None
+- `assertIn(a,b)` : a is in b
+- `assertNotIn(a,b)` : a is not in b
+- `assertIsInstance(a,b)` : isinstance(a, b) (a est une instance de b)
+- `assertNotIsInstance(a,b)` : not isinstance(a, b)
+- `assertAlmostEqual(a,b)` : round(a-b, 7) == 0
+- `assertNotAlmostEqual(a,b)` : round(a-b, 7) != 0
+- `assertGreater(a,b)` : a > b
+- `assertGreaterEqual(a,b)` : a >= b
+- `assertLess(a,b)` : a < b
+- `assertLessEqual(a,b)` : a <= b
+- `assertRegex(s,r)` : .search(s) (vérifier que la regex r retrouve la chaîne s)
+- `assertNotRegex(s,r)` : not r.search(s)
+- `assertCountEqual(a,b)` : variables a et b sont égales : même nombre d'éléments et mêmes éléments quelque soit leur ordre
