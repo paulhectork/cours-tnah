@@ -1,0 +1,50 @@
+% output une bibliographie à partir de Zotero
+
+\documentclass{article}
+
+\usepackage{fontspec}
+
+\usepackage[french]{babel}
+
+% paquet qui gère les citations
+\usepackage{csquotes}
+
+% utiliser biblatex ; backend = le moteur utilisé en back-end i guess ; sorting = critère d'organisation de la bibliographie, ici 'nyt' qui correspond à une méthode de citation ; style = le style de mise en forme, ici le style propre à l'ENC
+\usepackage[backend=biber,sorting=nyt,style=enc]{biblatex}
+
+
+
+\nocite{*}
+% ajouter les ressources bibliographiques, qui sont des fichiers .bib contenant les références bibliographiques ;  ici, il y a 1 fichier /texte
+\addbibresource{biblio/biblioOrganiseeExemple-etiquetageLinguistique.bib}
+\addbibresource{biblio/biblioOrganiseeExemple-topicModeling.bib}
+
+
+
+\DeclareSourcemap{%
+	% déclarer qu'on travaille avec des données bibtex
+	\maps[datatype=bibtex]{%
+		% écraser la manière dont les données s'écrivent d'habitude
+		\map[overwrite]{%
+			% perdatasource : boucler sur les fichiers à ajouter en bibliographie pour les mettre en forme à la bien
+			\perdatasource{biblio/biblioOrganiseeExemple-etiquetageLinguistique.bib}
+			% step : fieldset = quel champ on va toucher ; fieldvalue = ajouter des nvx mots clés aux mots-clés zotéro prééxistants, ici étiquetage (avec comme séparateur ',') ; append = ajouter le mot clé à la fin de la liste prééxistante
+			\step[fieldset=keywords,fieldvalue={,etiquetage},append]
+		}			
+		% on rebelote sur le 2e document bib de ressources bibliographiques
+		\map[overwrite]{
+			\perdatasource{biblio/biblioOrganiseeExemple-topicModeling.bib}
+			\step[fieldset=keywords,fieldvalue={,topicModelling},append]
+		}
+	}
+}
+
+
+
+\begin{document}
+
+% faire ressortir la biblio	
+\printbibliography[heading=subbibintoc,keyword=etiquetage,title=Étiquetage linguistique]
+\printbibliography[heading=subbibintoc,keyword=topicModelling,title=Topic Modelling]
+	
+\end{document}

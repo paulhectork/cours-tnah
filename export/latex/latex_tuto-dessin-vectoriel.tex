@@ -1,0 +1,109 @@
+\documentclass{article}
+
+\usepackage{fontspec}
+
+\usepackage[french]{babel}
+
+% le paquet pour des dessins : tikz
+\usepackage{tikz}
+
+% le paquet qui permet de créer des graphiques +facilt
+\usepackage{pgfplots}
+
+% charger le document csv à utiliser
+\pgfplotstableread[col sep=semicolon]{biblio/data.csv}\datatable
+
+\begin{document}
+	
+	% un dessin = un evt tikzpicture
+	\begin{tikzpicture}
+		% draw = dessiner une forme vide (que l'outline); (0,0) = les coordonnées de départ; circle = la forme à dessiner ; 1 = la taille de la figure
+		% ATTENTION : ne pas oubler les ';' à la fin d'un elt
+		\draw (0,0) circle (1);
+		
+	\end{tikzpicture}
+	
+	\begin{tikzpicture}
+		% filldraw = dessiner une forme vide ; fill = couleur de remplissage ; draw = couleur de trait ; ici, on fait un lien entre les coordonnées de 3 points grâce à '--' : (coord1) -- (coord2) -- (coord3)
+		\filldraw[fill=purple,draw=blue] (1,0) -- (0,0) -- (0,1) -- cycle;
+		
+	\end{tikzpicture}
+	
+	\begin{figure}[!h]
+		\begin{tikzpicture}
+			% node : un élément entier ; entre '[]', le type de forme et les dimensions ; '(A)' le nom de l'élément; {Image} : le contenu textuel de l'élément
+			\node[draw,rectangle,rounded corners=3pt,text centered,text width=2cm] (A) at (0,0) {Image};
+			
+			\node[draw,rectangle,rounded corners=3pt,text centered, text width=4cm] (B) at (4,0) {Texte};
+			
+			% avec draw, on fait le lien entre les éléments A et B
+			\draw[->,thick] (A) -- (B);
+		\end{tikzpicture}
+	\end{figure}
+	
+	% faire un schéma de lemmes
+	\begin{tikzpicture}
+		% là c'est un peu la même sauf que il n'y a pas de '[]' vu que il n'y a pas de forme, juste du contenu textuel
+		\node (O) at (0,0) {O};
+		\node (O') at (0,-1) {O'};
+		\node (Ab) at (-2.5,-1.8) {Ab};
+		
+		\draw[thick] (O) -- (O');
+		\draw[thick] (O') -- (Ab);
+	\end{tikzpicture}
+
+	% faire une grille avec une courbe, boucler
+	\begin{tikzpicture}
+		% \draw plot permet de dessiner une courbe ; on fait un {} contenant des coordonnées, comme avec \addplot coordinates plus bas
+		\draw plot[mark=*] coordinates {(1,5) (2,6) (3,7) (4,4) (5,5)};
+		\draw (1,4) grid (5,7);
+	
+		% avec ça, on boucle sur les abscisses pour mettre des chiffres sur l'axe des abscisses
+		% foreach permet de boucler sur un élément (ici \x, les abscisses)
+		% in {1,2,...,5} : permet d'indiquer sur quoi et comment on boucle: {1,...,5} = l'axe des abscisses ; '1,2 définit le pas (boucler tous les 2-1 = 1 elts)
+		% syntaxe abstraite : \foreach \eltName in {a,b,...,n} avec a le premier elt de l'itérable sur lequel on boucle, b le 2e, n le dernier
+		% draw (\x,3.8) définit quoi écrire je crois
+		% node[below]{\x} : on écrit sous l'axe des abscisses
+		\foreach \x in {1,2,...,5} \draw (\x,3.8) node[below] {\x}; 
+		
+		% là c'est en gros la même, mais pour écire dans l'axe des ordonnées ; du coup on fait {4,5,...,7} remplace x par y, on écrit node[left] vu que les chiffres s'écrivent à gauche de l'axe
+		\foreach \y in {4,5,...,7} \draw (0.8,\y) node[left] {\y};
+	\end{tikzpicture}
+
+	% faire une jolie grille avec pgfplots
+	\begin{tikzpicture}
+		% on importe le pkg pgfplots et on charge l'environnement axis de ce paquet ; le reste est assez transparent
+		% [title=leTitreQuOnVeut]
+		% grid = la forme : une grille
+		% xlabel = {titreEnAbscisses}
+		% ylabel = {titreEnOrdonnées}
+		\begin{axis}[title={Évolution des degrés en fonction des jours},
+			grid,
+			xlabel={Jour},
+			ylabel={Degrés}
+			]
+		
+			% on ajoute les coordonnées de sa courbe {(coordAbs1, coordOrd1), (coordAbs2, coordOrd2), (coordAbsN, coordOrdN)};
+			\addplot coordinates {(1,5) (2,6) (3,7) (4,4) (5,5)};
+		\end{axis}
+	\end{tikzpicture}
+	
+	% travailler avec des données issues d'un CSV
+	\begin{tikzpicture}
+		\begin{axis}[
+			xtick=data,
+			xticklabels from table={\datatable}{langue},
+			xticklabel style= {font=\tiny},
+			xlabel=Langue,
+			ylabel = Nombre de lexèmes conservés
+			]
+			
+			% bon jsp ce qu'il se passe
+			\addplot table [col sep=semicolon,x expr=\coordindex,y = conservé ancien]{biblio/data.csv};
+			\addplot table [col sep=semicolon,x expr=\coordindex,y = conservé moderne]{biblio/data.csv};
+			
+		\end{axis}
+		
+	\end{tikzpicture}
+	
+\end{document}

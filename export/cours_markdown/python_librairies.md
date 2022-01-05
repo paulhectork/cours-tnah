@@ -1025,10 +1025,12 @@ class Classname (db.model):
 		- avec `table2_id` la clé extérieure dans Table1 qui renvoie vers Table2 et `table2.id` est la clé principale de Table2
 		- on remarque pour **cibler la table externe**, on utilise la syntaxe SQL entre guillemets : `"nom_de_table_en_sql.nom_de_colonne"` (on donne le nom de table et de colonne tels qu'ils sont dans SQL, et non dans nos `Class`)
 - **`db.relationship`** : expliciter la relation entre 2 tables
-	- `db.relationship` ne **modifie pas la structure de la table** SQL, elle explicite juste la relation entre des tables pour notre langage de programmation OOP
+	- un attribut de la classe qui fait une requête automatiquement et **joint les objets des classes liées**
+	- ne **modifie pas la structure de la table** SQL, elle explicite juste la relation entre des tables pour notre langage de programmation OOP
 	- **paramètres** :
 		- **le nom de la classe liée - obligatoire** (`Authorship`...)
-		- **`back_populates`** : un argument optionnel à placer dans les colonnes  `db.relationship()` de tableA et tableB pour lier les deux tables de façon à ce que la modification d'une table impacte l'autre ; permet **relations bidirectionnelles explicites** (maj de tableA impactent tableB et inversement)
+		- **`back_populates`** : crée le lien entre les objets de 2 tables liés dans liées bidirectionnellement (avec un back_populates dans chaque table) (*en gros, met en attribut les objets de tableA et tableB de sorte à ce que un objet tableA prenne en attribut les objets de tableB auxquels il est lié*)
+			- permet **relations bidirectionnelles explicites** (maj de tableA impactent tableB et inversement)
 			- il existe des alternatives à `back_populates`, mais ce cours est bien assez complexe comme ça (`backref`, qui ne se place que sur la tableA et renvoie à la tableB; 2 options équivalentes, mais `backref` est moins explicite)
 		- **`foreign_keys`** : permet de préciser la clé externe à utiliser dans une colonne `db.relationship()`. À utiliser quand il y a **plusieurs manières de construire une relation entre des tables ; permet de désambiguïser** (2 colonnes de tableA qui renvoient à tableB => précise comment faire la jointure)
 			- syntaxe: 
@@ -1108,7 +1110,8 @@ class Classname (db.model):
 			parent_id = Column(Integer, ForeignKey('parent.id'))
 			parent = relationship("Parent", back_populates="child")
 	```
-- **`many to many`** : créer une table d'association entre tableA et tableB, ajouter des arguments `relationship.back_populates` entre tableA et tableB et créer une relation secondaire vers la table d'association (avec `relationship.secondary`) :
+- **`many to many`** : créer une table d'association entre tableA et tableB, ajouter des arguments `relationship.back_populates` entre tableA et tableB et créer une relation secondaire vers la table d'association (avec `relationship.secondary`)
+	- **autre méthode pour `many to many`** : l'exemple pour la table `Authorship` donné par le prof qui suit et fonctionne aussi. Seule différence : on ne fait pas une relation `relationship` entre tableA et tableB avec une relation secondaire `relationship.secondary` vers la table de relation, mais une relation `relationship` directement vers la table de relation
 	```python
 		class Parent(Base):
 			__tablename__ = 'parent'
@@ -1125,7 +1128,6 @@ class Classname (db.model):
 			child_id = Column(Integer, ForeignKey('child.id'))
 			parent_id = Column(Integer, ForeignKey('parent.id'))
 	```
-	(sinon l'exemple pour la table `Authorship` donné par le prof et qui suit fonctionne aussi)
 	
 ---
 **créer une table `Autorship` et les relations `many-to-many`**
@@ -1173,6 +1175,16 @@ class Classname (db.model):
 	# 4.
 	db.session.commit()
 ```
+
+
+---
+**Formulaire de mise à jour**
+- **créer une route** qui dirige vers un formulaire de redirection
+- **lier cette route à l'objet à modifier** : pour chaque objet, faire un renvoi avec `url_for()` vers la route de modification
+- **dans la fonction de modification** (qui correspond à la route) :
+	- récupérer l'objet à modifier et le stocker dans une variable
+- **créer un template de modification** ; c'est exactement comme un formulaire de création, sauf que le formulaire de modification est prérempli : pour chaque attribut de l'objet, on met un `<input>`, pour rentrer ses données
+	- **différence** : on affiche la valeur par défaut dans l'attribut 'value' de `<input>` : `<input type="text" name="..." value="{{table.attribut}}">` (avec attribut l'info à modifier (nom...))
 
 
 ---

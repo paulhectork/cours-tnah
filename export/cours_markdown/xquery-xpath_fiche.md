@@ -266,7 +266,7 @@ une requête xquuery retourne une séquence de résultats => il faut itérer sur
 	```
 - on peut **combiner l'imbrication et l'enchaînement** (joie) : exemple pour retourner des noms de ville et des noms de pays: 
 ```xquery
-	let $ doc := doc (”db/tp/mondial.xml”)
+	let $doc := doc(”db/tp/mondial.xml”)
 	return
 		(for $country in $doc//country/name
 		return $country,
@@ -324,7 +324,7 @@ une requête xquuery retourne une séquence de résultats => il faut itérer sur
 
 
 ---
-**expressions conditionnelles - `if-tgen-else`**
+**expressions conditionnelles - `if-then-else`**
 - **syntaxe** : `if _expr_ then _expr_ else _expr_`
 - *exemple*
 ```xquery
@@ -334,3 +334,21 @@ une requête xquuery retourne une séquence de résultats => il faut itérer sur
 		then <grande_ville>{$city/name/text()}</grande_ville>
 		else <ville>{$city/name/text()}</ville>
 ```
+
+
+---
+**opérateurs**
+- **opérateur arrow `=>`**  : permet d'appliquer une fonction à une valeur ; en gros, permet d'appliquer des fonctions avec une syntaxe différente, sans imbrication
+	- **syntaxe** : `$var => funct1() => funct2()`
+	- *syntaxe normale: `funct1(funct2($var))`*
+	- **exemple** : l'équivalent de `lower-case(normalise-space($str))` est
+	```XQuery
+		$str => lower-case() => normalise-space()
+	```
+- **opérateur map `!`** permet de parcourir tous les éléments d'une séquence itérable, sans avoir recours à tous les éléments de la séquence
+	- **syntaxe** : `sequence ! fonction()`
+	- le `!` veut dire : "parcourir tous les élts de la séquence"
+	- **exemple** :
+	```XQuery
+		(A, B, C) ! lower-case()
+	```
