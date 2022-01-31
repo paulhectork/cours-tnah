@@ -1194,6 +1194,41 @@ class Classname (db.model):
 
 
 ---
+**gestion des relations à l'ajout de données**
+```python
+db.session.add(Authorship) # récup sur l'exemple
+```
+
+
+---
+**API, JSON, toussa**
+
+En bref : un envoi de données en JSON, c'est
+- **des données traduites en JSON**
+- une **communication des données en HTTP**, et donc l'envoi d'une réponse, avec en corps, le JSON et un header (avec un statut HTTP `200` et un mimetype `application/json` (qui dit que la réponse est OK et que le type de données c'est du JSON))
+- **exemple** :
+	```python
+	@app.route("/du_json")
+	def une_route():
+    	mon_dictionnaire = {"une_cle" : "une valeur"}
+    	mon_json = json.dumps(mon_dictionnaire) # traduction des données en JSON
+    	response = Response(mon_json, status=200, mimetype="application/json" # réponse HTTP, avec entre guillemets les données du header
+    	return response
+	```
+
+---	
+**`flask.jsonify`**
+- `jsonify` est une fonction flask qui transmet automatiquement des données au format JSON (en gros, une version abbrégée de `Response()` vu au dessus)
+- **exemple** ~ équivalent à l'exemple au dessus :
+	```python
+	@app.route("/du_json")
+	def une_route():
+    	mon_dictionnaire = {"une_cle" : "une valeur"}
+    	return jsonify(mon_dictionnaire)
+	```
+
+
+---
 # TU PEUX PAS `UNITTEST`
 (les jeux de mots empirent de librairie en librairie)
 **intro** 
@@ -1207,15 +1242,44 @@ class Classname (db.model):
 	- `unittest` - incluse par défaut dans python
 	- `nosetest` - rétrocompatible avec `unittest`, installable avec `pypi`
 	- `py.test` - +léger, utilise bcp `assert`
+- **plusieurs types de codes**
+	- `unitaires` : vérifient qu'un seul type de code fonctionne
+	- `d'intégration` : vérifient que plusieurs types de codes fonctionnent entre eux 
 
 
 ---
 **créer un test, à la base, c'est quoi?**
+- **créer une classee** dérivée de `unittest.TestCase`
+	- chaque classe contient **plusieurs tests**
+	- chaque classe correspond à **un type de test** (entrée de données par des utilisateurs...)
+- dans chaque classe, **les tests sont des objets/fonctions** qui commencent par `test_`
+- les tests sont lancés par **le terminal**
+```python
+	import unittest
 
+	class TestCarre(unittest.TestCase):
+	""" Test l'ensemble des fonctions pour carré """
+		def test_calcul_correct(self):
+			self.assertEqual(carre(8), 64)
+			self.assertEqual(carre(3), 9)
+			self.assertEqual(carre(-1), 1)
+			for x in range(9):
+				self.assertEqual(carre(x), carre(-x))
+
+		def test_erreur_quand_non_numeric(self):
+			with self.assertRaises(TypeError):
+			# Ne fonctionnera que si l'erreur TypeError est lancée
+				carre("Ca va pas marcher...")
+```
+**exemple - écriture de tests**
+```bash
+unittest.main(argv=['first-arg-is-ignored'], exit=False)
+```
 
 ---
 **les assertions de `unittest`**
 - `assertEqual(a,b)` : a == b
+	- peut être utiliser pour faire des tests de conditions précises: `assertEqual(a in b, True)` ne renvoie pas d'erreur si a in b renvoie True (si a est dans b)
 - `assertNotEqual(a,b)` : a != b
 - `assertTrue(x)` : bool(x) is True
 - `assertFalse(x)` : bool(x) is False
@@ -1227,7 +1291,7 @@ class Classname (db.model):
 - `assertNotIn(a,b)` : a is not in b
 - `assertIsInstance(a,b)` : isinstance(a, b) (a est une instance de b)
 - `assertNotIsInstance(a,b)` : not isinstance(a, b)
-- `assertAlmostEqual(a,b)` : round(a-b, 7) == 0
+- `assertAlmostEqual(a,b)` : utile our les décimales: quand on travaille avec des nombres décimaux, on se tape souvent des erreurs mystérieuses qu'on peut dépasser avec ça
 - `assertNotAlmostEqual(a,b)` : round(a-b, 7) != 0
 - `assertGreater(a,b)` : a > b
 - `assertGreaterEqual(a,b)` : a >= b
@@ -1236,3 +1300,11 @@ class Classname (db.model):
 - `assertRegex(s,r)` : .search(s) (vérifier que la regex r retrouve la chaîne s)
 - `assertNotRegex(s,r)` : not r.search(s)
 - `assertCountEqual(a,b)` : variables a et b sont égales : même nombre d'éléments et mêmes éléments quelque soit leur ordre
+
+
+---
+**La rédaction de tests**
+- **`setUp`** : fonction de mise en place des données, lancées avant chacun des tests d'une classe ; permet de générer des données avant de tester
+- **`tearDown`** : autre méthode lancée dès le lancement des tests, avant tous les autres tests
+- **`fixtures`** : données générées pour une BDD temporaire qui permettra de tester la validité des tests
+- **`mocks`** : création d'une fonctionA qui en imite/remplace une autre pour tester une autre fonctionB qui a besoin de fonctionA (exemple: fonction qui renvoie du JSON pour remplacer `requests.get`) ; surtout utile dans le cas des API, quand on utilise un service externe et qu'on ne dispose pas de leurs fonctions bien qu'elles soient nécessaires au fonctionnement de notre application

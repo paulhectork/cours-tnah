@@ -440,3 +440,22 @@ Modéliser, c'est **créer la représentation d'un système complexe** pour l'é
 	- capacité du réseau de l'institution (pour accéder au cloud)
 	- perte de compétence dans la gestion de ses propres de données (on risque d'être pris en otage par son cloud)
 - **tldr** : ne pas prendre un tank pour tuer une souris
+
+
+---
+# VISUALISATION
+**extraire des données**
+rattrapper
+
+---
+**de la donnée à la visualisation**
+- **préparer les données**
+	- identifier les limites et erreurs dans les données, pour trouver les biais à la visualisation
+	- déterminer des indicateurs; critères mesurables à partir desquels extraire une visualisation
+	- croiser les données entre elles, éventuellement
+	- tester la pertinence des résultats pour vérifier les biais possible
+- **visualiser**
+	- trouver des représentations pertinentes par rapport à la nature des données
+	- jauger la quantité d'informations visualisables
+	- déterminer des interactions utilisateur avec les représentations (pour pas faire de visualisations statiques)
+	- déterminer si l'analyse est explicite ou non
