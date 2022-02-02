@@ -459,3 +459,73 @@ rattrapper
 	- jauger la quantité d'informations visualisables
 	- déterminer des interactions utilisateur avec les représentations (pour pas faire de visualisations statiques)
 	- déterminer si l'analyse est explicite ou non
+
+
+---
+# MASHUP DE DONNÉES
+
+---
+**principes de base**
+- le mashup, c'est **le mélange de différentes sources de données** pour permettre son exploitation
+- **à partir de là**, on peut créer des API, permettre une exposition au public...
+
+
+---
+**première étape : analyser ses données**
+
+**évaluer** les données et **imaginer** les usages : base du L de visualisation
+- **qu'est-ce qu'on va faire des données** (question principale)
+- quelles sont les données
+- quelles forces et faiblesses ?
+- est-ce que les données sont complète
+- est-ce qu'on peut les compléter en faisant un mashup avec d'autres datasets ?
+
+
+---
+**étapes du travail**
+- récupérer les données
+- préparer les données
+- exploiter les données 
+
+---
+**récupérer les données**
+- **comment ?**
+	- **`data dump`** : dépôt ou déversement de données figé à un instant T (en gros, un export de BDD) ; 
+		- c'est pratique, mais le problème c'est qu'un dump est figé dans le temps et dans sa forme (impossible de trier les données) ; 
+		- énormément de dumps d'etp et services publics sur internet (ratp, ministères, ina...)
+		- il y a aussi des dumps communautaires (wikidata)
+	- **`API`** : dépôt de données en temps réel
+		- nombreuses manières de requêter : REST (ce qu'on fait avec module `request` je crois), Restfull, SPARQL Endpoint...
+		- API sont plus rarement open data, donc plus rarement réutilisable => **consulter les licences**
+		- **API web ouvertes** : 
+			- SPARQL Endpoint : wikidata, data.bnf, dbpedia, biblissima
+			- IIIF : Biblissima
+			- Langages propriétaires : Wikimedia commons, 
+	- **`scraping`** : automatiser la récupération des données structurées en HTML sur une page web (en gros, copier le HTML d'une page) ; attention, **peut être illégal** ; librairie python : `scrapy`
+
+
+---
+**préparer ses données**
+- **phase indispensable** : permet de standardiser les données et de les rendre ensuite réutilisables
+	- les données récupérées sont souvent sales
+	- permettre l'interopérabilité des formats (faire communiquer des données RDF avec du SQL...)
+- **quel type de traitement**
+	- **traitement unique** : on le fait une fois ; à privilégier si on travaille sur un dump, un jeu de données qui n'évolue pas (films réalisés avant 2000...)
+	- **traitement régulier** : traitement en flux quand on travaille avec des flux de données
+- **méthode**
+	- **`analyse`** de données (comprendre la structure, sémantique, nature et cohérence des données)
+	- **`filtrage`** : sélectionner les données utiles
+	- **`normalisation`** : typer les données, cohérence des valeurs, forme des données
+	- **`structuration`** : mapping des données (diriger ses données d'une étape à l'autre, déterminer où elles vont)
+	- **`enrichissement`** : jointure avec d'autres jeux de données
+- **outils de nettoyage** : OpenRefine, Datailku, Talend...
+	- fonctionnent comme un **data pipeline** avec une interface graphique (flux de traitement de données où on fait plusieurs séries de modifications)
+
+
+---
+**exploitation et enrichissement de données**
+
+
+---
+## lancer dataiku 
+`http://localhost:11000/`, login admin pw admin).
