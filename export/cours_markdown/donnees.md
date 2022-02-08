@@ -528,4 +528,5 @@ rattrapper
 
 ---
 ## lancer dataiku 
-`http://localhost:11000/`, login admin pw admin).
+- `programmes/dataiku/bin/dss start`
+- `http://localhost:11000/`, login admin pw admin).

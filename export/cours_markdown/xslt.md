@@ -150,6 +150,27 @@ on peut aussi **injecter du texte** :
 </xsl:template>
 ```
 ---
+## Préambule d'une feuille XSL
+
+**L'élément ouvrant**
+```xml
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+    xpath-default-namespace="http://www.tei-c.org/ns/1.0"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:tei="http://www.tei-c.org/ns/1.0"
+    exclude-result-prefixes="xs tei"
+    version="2.0">
+```
+**Paramétrer la sortie**
+- **`output`** : la sortie (ici, `xml` vu qu'on travaille avec dy XML)
+- **`indent`** : autoindenter la sortie
+- **`encoding`** : assez transparent
+```xml
+<xsl:output method="xml" indent="yes" encoding="UTF-8"/>
+```
+
+
+---
 ## Règles XSL
 
 ---
@@ -163,6 +184,35 @@ Cette règle indique que les règles définies dans l’XSL doivent être **appl
      </xsl:element>
 </xsl:template>
 ```
+- **attribut `select`** permet de n'apppliquer les templates qu'à un sous-élément/des sous éléments ciblés avec une xpath
+	```XML
+	<!-- n'appliquer les templates que aux <persName> -->
+	<xsl:template match="div">
+	     <xsl:element name="p">
+	          <xsl:apply-templates select="persName"/>
+ 	    </xsl:element>
+	</xsl:template>
+	```
+	- *on peut modifier l'ordre des éléments* du document originel en multipliant les `<apply-templates>` :
+		```xml
+		<xsl:apply-templates select="//lg[@type='tercet'][2]"/>
+		<xsl:apply-templates select="//lg[@type='tercet'][1]"/>
+		<xsl:apply-templates select="//lg[@type='quatrain'][2]"/>
+		<xsl:apply-templates select="//lg[@type='quatrain'][1]"/>
+		```
+- **attribut `mode`** : permet d'associer différentes règles à différents usages (aka, traiter un même élément de plusieurs manières différentes)
+	```xml
+ 	<xsl:template match="element">
+		<xsl:apply-templates mode="mode1"/>
+	</xsl:template>
+
+	<xsl:template match="sous_element" mode="mode1">
+		<!-- règles -->
+	</xsl:template>
+	```
+	- s'applique à`<xsl:apply-templates>` et `<xsl:templates>` 
+	- le nom du mode est arbitraire
+
 ---
 **`<xsl:copy>`**
 
