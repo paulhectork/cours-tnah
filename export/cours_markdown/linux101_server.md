@@ -20,8 +20,57 @@
 
 
 ---
+## installation de paquets
+- `dpkg --list` : afficher la liste des paquets installés sur le système ; les lignes comportant les logiciels installés commencent par `ii`
+- `apt` : 
+    - `apt install <package>` installe le paquet "package" ;
+    - `apt search <package>` recherche le paquet "package" dans les dépôts ;
+    - `apt purge <package>`` désinstalle le paquet "package" ;
+    - `apt update` met à jour le cache local contenant la liste des paquets disponibles ;
+    - `apt upgrade` met à jour les paquets installés.
+- **les dépôts logiciels sous Debian** sont configurés à plusieurs endroits : dans le fichier `/etc/apt/sources.list`, ou dans un fichier dont l'extension se termine par `.list` et se trouvant dans le répertoire `/etc/apt/sources.list.d`.
+- **installer un nv dépôt** : ajouter l'url du dépôt dans ces dossiers, dans un fichier `backports.list` : `/etc/apt/sources.list.d/backports.list`
+	- *par exemple* : `echo "deb http://deb.debian.org/debian bullseye-backports main" > /etc/apt/sources.list.d/backports.list`
+- **installer un paquer depuis un dépôt** : `apt install -t nomPaquet`
+
+
+---
 ## réseau et HTTP
 
-- une machine a une **adresse IP par défaut** (indentifiant individuel) et une **passerelle par défaut** (serveur par défaut pour se connecter à internet)
+Une machine a une **adresse IP par défaut** (indentifiant individuel) et une **passerelle par défaut** (serveur par défaut pour se connecter à internet)
 - **adresse IP de ma machine** : `192.168.122.148`
 - **passerelle par défaut** : `192.168.122.0`
+
+**Le protocole d'adressage** : 
+- **couche haute** : 
+- **couche matérielle** : 
+- **adresses IP** : `ipv4` et `ipv6`
+	- **`ipv4`** : protocole IP majoritaire, existe depuis 30-40 ans. Adresse IP composée de 4 octets. https://fr.wikipedia.org/wiki/IPv4 
+		- **une adresse IP**, c'est une série de 4 octets (1 octet = un nombre entre 0 et 255) => 4 séries de nombres séparés par un point : `192.168.122.148`.
+		- **adresses décomposées** entre bits réservés au réseau et bits reservés à l'hôte : 
+			- c'est le **masque de sous-réseau** à la suite de l'IP, qui définit combien d'adresses IP personnelles différentes peuvent se connecter au réseau
+			- formellement : le `/N` dans l'adresse suivante) `192.168.122.148/16`
+		- **adresse réseau / adresse broadcast** : 
+		- **adresse de sous-réseau** : un routeur (une source d'internet, quoi) peut connecter plusieurs adresses IP personnes à internet : l'IP réseau du routeur est divisée en plusieurs adresses de sous-réseau qui sont utilisées par les ordinateurs personnels
+		- une adresse IP personnelle est une adresse privée : elle ne peut pas accéder à internet en tant que telle => le **`NAT`** (Network Adress Translation) permet de traduire une IP personnelle en IP réseau ; c'est le **routeur web** qui fait le NAT.
+		- **`LAN` / `localhost`** :
+			- **localhost** : adresse IP `127.0.0.X` : c'est une adresse réseau locale (qui tourne seulement sur l'ordi), qui n'est jamais connectée au réseau
+			- **LAN** : local area network : réseau informatique de plusieurs machines qui communiquent sans utiliser d'accès à internet. Un LAN peut être connecté à internet si une machine du LAN a une passerelle vers internet
+		- **passerelle par défaut** : l'adresse IP par défaut par laquelle une machine ou un LAN permet de transférer des informations à internet
+		- **`DNS`** : Domain Name System : le protocole qui permet de traduire des adresses IP en adresses web "normales" (google.com)
+	- **`ipv6`** : protocole IP arrivé il y a 20aine d'années. Il y a bcp plus de 4 octets
+![91e852ad8f36d30aaeb2ef3385189546.png](../_resources/91e852ad8f36d30aaeb2ef3385189546.png)
+
+
+**Réseau HTTP sous Debian**
+- Sous Debian, la configuration de l'interface réseau se trouve dans le fichier `/etc/network/interfaces`. Comme pour la configuration des dépôts, un répertoire `/etc/network/interfaces.d` peut contenir des fichiers de configuration supplémentaires.
+- `ip addr show` : montre les adresses IP
+- `ip route show` affiche la table de routage de la machine
+- `man interfaces` : donne la syntaxe de configuration de l'interface
+
+
+---
+## Gestion des utilisateurices
+- *mdp utilisateur de student1 : password*
+- `exit` / `logout` : se déconnecter de sa session actuelle
+- `login <usrname>` : se connecter à un compte
