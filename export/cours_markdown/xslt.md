@@ -211,6 +211,16 @@ on peut aussi **injecter du texte** :
 
 ## Règles XSL
 
+---
+**Sélectionner tous les éléments d'un arbre**
+```xml
+    <xsl:template match="@*|node()">
+        <xsl:copy>
+            <xsl:apply-templates select="@*|node()"/>
+        </xsl:copy>
+    </xsl:template>
+```
+
 * * *
 
 **`<xsl:apply-templates>`**
@@ -365,11 +375,51 @@ Permet la **création de variables** : associer des données à un nom qui peut 
     ```xml
     <xsl:value-of select="$varName"/>
     ```
-    
 
-* * *
+	
+---
+**`<xsl:if>`**
 
-**fonctions XPath pour traiter des chaînes de caractères**
+`<xsl:if>` **contient un modèle** (une règle) qui s'active uniquement si l'attribut `@test` contient une Xpath évaluée à `true` (**tldr** : `<xsl:if>` active une règle seulement si sur le chemin xpath de `@test`)
+
+
+---
+**`<xsl:choose>`, `<xsl:when>`, `<xsl:otherwise>`**
+
+`<xsl:choose>` permet de faire des structures de choix et alternatives. Il sélectionne **une possibilité dans une liste de choix**. Il contient
+- un **`<xsl:when>`** qui permet d'appliquer un motif sur un sous-groupe d'éléments ciblés avec un attribut `@test`
+- un **`<xsl:otherwise>`  optionnel** qui traite tous les cas qui ne correspondent pas à ceux ciblés avec `<xsl:when>`
+
+```xml
+<xsl:template match="mon_element">
+	<xsl:choose>
+		<xsl:when test="chemin_xpath_a_verifier">
+			<!-- motifs à appliquer -->
+		</xsl:when>
+		<xsl:otherwise>
+			<!-- motifs à appliquer -->
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+```
+
+---
+**`<xsl:for-each>`**
+
+L’instruction xsl:for-each itère sur les nœuds sélectionnés par son attribut @select et applique le modèle de son contenu à chacun des éléments du nœud.
+```xml
+<xsl:template match="mon_element">
+    <xsl:for-each select="sous_elements_a_traiter">
+      <!-- motifs à appliquer -->
+    </xsl:for-each>
+</xsl:template>
+```
+
+---
+
+## Fonctions XPath pour traiter des chaînes de caractères
+
+---
 
 **`concat(string1, string2)`** : concaténer deux chaînes de caractères
 
@@ -377,6 +427,7 @@ Permet la **création de variables** : associer des données à un nom qui peut 
 <xsl:value-of select="concat('element1', 'element2')"
 ```
 
+---
 **`replace()`** : remplacer une chaîne de caractère par une autre dans un élément ciblé avec xPath
 
 - **syntaxe** :
@@ -391,12 +442,14 @@ Permet la **création de variables** : associer des données à un nom qui peut 
 <xsl:value-of select=" replace(current(),'&amp;','and')"/>
 ```
 
+---
 **`upper-string()` et `lower-string()`** : remplacer les chaînes de caractères en *all-caps* ou *no-caps*
 
+
+---
 **Liste plus complète** : https://www.w3schools.com/xml/xsl_functions.asp
 
-* * *
-
+---
 ### Exercice
 
 À l’aide des éléments vus pendant la séance, reproduire l'intégralité du fichier TEI de Verlaine en numérotant automatiquement les vers et les strophes. Essayer de proposer plusieurs formats et plusieurs types de numérotation des vers:
