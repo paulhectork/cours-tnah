@@ -416,6 +416,84 @@ L’instruction xsl:for-each itère sur les nœuds sélectionnés par son attrib
 ```
 
 ---
+**`<xsl:sort>`**
+
+Il **change l’ordre des nœuds contextuels** du document source en un autre ordre, comme l’ordre alphabétique.
+- est un **enfant de `<apply-templates>` ou `<for-each>`**
+- **attributs possibles** : 
+	- `@select` : quel(s) nœud(s) il faut tirer
+	- `@data-type` : type de tri. Par défaut, le tri est alphabétique ; on peut le transformer en un autre ordre, comme l'ordre alphabétique
+		- `number`
+		- `qname`
+		- `text` - défaut
+	- `@order` : ordre de tri `ascending|descending`
+	- `@case-order` : est-ce qu''il faut trier les majuscules ou non
+		- `upper-first` : trier par les majuscules
+		- `lower-first` : commencer le tri par les minuscules
+
+---
+**`<xsl:for-each-group>`**
+
+**itère sur les groupes** de nœuds sélectionnés par son attribut `@select` et applique le modèle de son contenu à chacun d'entre eux.
+- Selects a sequence of nodes and/or atomic values and organizes them into subsets called groups.
+- `@select` permet e cibler les nœuds sur lesquels itérer
+- `@group-by` permet de rassembler les nœuds sélectionnés en sous-groupes
+- `current-grouping-key()` : fonction XPath permet de retourner la valeur de la clé de regroupement pour la boucle en cours (par exemple, la valeur d'un attribut `@type` si on regroupe par `@type`)
+- `current-group()` : permet de cibler le groupe créé avec la boucle actuelle
+```xml
+<xsl:template match="mon_element">
+		<xsl:for-each-group select="sous-elements" 
+				group-by="cle_regroupement">
+		<!-- motifs à appliquer -->
+	</xsl:for-each-group>
+</xsl:template>
+```
+
+---
+**`<xsl:call-template/>`**
+
+**Insérer une règle à un certain endroit** de l'architecture XSL. 
+- `<xsl:call-template>` permet d’appeler, à l’intérieur d’une règle xsl une autre règle, grâce à l’attribut `@name`, à un endroit préçis d’une architecture d’accueil.
+- la règle appelée doit être déclarée et nommée grace à `@name` qui permettra de l’identifier.
+
+```xml
+<xsl:call-template name="nom_règle"/>
+<!-- -->
+<xsl:template name="nom_règle">
+        [motifs de la règle]
+</xsl:template>
+```
+
+
+---
+## Tips 'n' tricks
+
+---
+**supprimer un élément**
+
+C'est facile: on match un élément et fait un `<xsl:apply-templates>` vide dedans ou alors on fait une règle vide `<xsl:match/>`
+
+```xml
+<!-- supprimer les milestones et pb -->
+    <xsl:template match="milestone|pb">
+        <xsl:apply-templates/>
+    </xsl:template>
+```
+```xml
+<!-- supprimer l'attribut @part -->
+    <xsl:template match="@part"/>
+```
+
+---
+**copier un élément et ses attributs sans utiliser `<xsl:copy-of>`**
+
+(ça permet de faire des `<apply-templates>`)
+
+```xml
+
+```
+
+---
 
 ## Fonctions XPath pour traiter des chaînes de caractères
 

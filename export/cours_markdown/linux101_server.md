@@ -74,3 +74,29 @@ Une machine a une **adresse IP par défaut** (indentifiant individuel) et une **
 - *mdp utilisateur de student1 : password*
 - `exit` / `logout` : se déconnecter de sa session actuelle
 - `login <usrname>` : se connecter à un compte
+
+
+---
+## Architectures 3/3 (trois tiers)
+
+**Essentielle au dvp du web dynamique** : développement en 3 couches
+
+**Les bases**
+- **présentation** : la couche qui communique des données à l'utilisateurice / sur son poste personnel
+	- **langage propre** à la couche présentation: `html`, `xhtml`, `css`
+	- **langage de communication** présentation/bdd principal : `CGI` (common gateway interface)
+- **application**, qui gère et affiche les données
+	- **langage propre** à la couche applicative: `php`, `perl`, `python`, `java`, `javascript`, `ruby`
+	- **langage de communication** principal application/bdd : `sql`
+- **base de données** qui contiennent les données à afficher 
+	- **langage propre** : `MySQL`, `Postgresql`, `Oracle`, `MariaDB`...
+
+**Nouveaux ajouts**
+- **couche animations** s'est rajoutée sur la couche applicative (avec `javascript`)
+- **couche distribution** indépendante, avant la couche de présentation: permet la répartition de charge (fonctionnement plus complexe d'une application web pour gérer un plus grand nombre de requêtes: 
+	- répartiteurs de charge:  diviser le fonctionnement d'un site web sur différents serveurs web (X serveur gère X requête...)
+	- gérer la sécurité
+	- mettre en cache des données qui sont souvent requêtées (les stockées dans la mémoire en accès rapide pour une durée limitée pour diminuer la durée de lancement)
+	- **les reverse proxy** permettent de faire tourner ça : une couche proxy qui est devant les serveurs web qui font tourner l'application et qui répartissent les requêtes à travers différents serveurs.
+- **couche de données volatiles**, au niveau de l'application : le serveur web applicatif garde en mémoire vive certaines données dans des bases clés/valeurs qui n'utilisent pas de SQL (principe `nosql`)
+

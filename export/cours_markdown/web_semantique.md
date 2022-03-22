@@ -115,7 +115,8 @@ WHERE {
 	?oeuvre <http://www.w3.org/2000/01/rdf-schema#label> "Les Misérables"@en.
 } 
 	--where: tri des données
-	--?oeuvre : déclaration d'un triplet ; utiliser des "<>" si l'URI est exprimé complètement
+	--?oeuvre (1e ligne) : déclaration d'un triplet: ?oeuvre a pour auteur Victor_Hugo ; utiliser des "<>" si l'URI est exprimé complètement
+	--?oeuvre (2e ligne) : déclaration du 2e triplet: ?oeuvre a pour "label" Les Misérables en anglais
 	--"Les Misérables" : le littéral est déclaré entre guillemets, hors chevrons
 	--"@en" : le langcode du littéral est exprimé avec un "@"
 ```
@@ -127,8 +128,8 @@ WHERE {
 
 ---
 **construction d'une requête `SELECT` : les bases**
-- **`PREFIX`** : définir un préfixe et namespaces** (la base sur laquelle on va requêter des données) : `PREFIX dbpedia: <http://dbpedia.org/resource/>` (/resource : version de dbpedia lisible machine, contrairement à /page, pour les humains)
-- **`SELECT`** : sélectionner une variable pour requêter (en gros, la variable dans laquelle on stocke les résultats) : `SELECT ?oeuvre` (le nom de variable n'est pas signifiant pour la requête)
+- **`PREFIX`** : définir un préfixe et namespaces (la base sur laquelle on va requêter des données) : `PREFIX dbpedia: <http://dbpedia.org/resource/>` (/resource : version de dbpedia lisible machine, contrairement à /page, pour les humains)
+- **`SELECT`** : sélectionner une variable pour requêter (en gros, la variable dans laquelle on stocke les résultats) : `SELECT ?oeuvre` (le **nom de variable n'est pas signifiant** pour la requête)
 - **`SELECT DISTINCT`** : éliminer les doublons
 - **`WHERE {}`** : définir le **tri/sélection** des données ; dans `{}`, on déclare des contraintes
 - **`FILTER()`** : 

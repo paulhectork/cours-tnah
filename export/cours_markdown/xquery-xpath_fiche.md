@@ -188,6 +188,7 @@ ___
 **opérateurs** - s'utilisent dans des prédicats
 - **opérateurs arithmétiques** : `+` `-` `*` `div` (division) `mod` (modulo)
 - **opérateurs de comparaison** : `=` `!=` `<` `>` `<=` `>=`
+	- **en XSLT**, `<` s'écrit `&lt;` et `>` s'écrit `&gt;` (parfois en fait je crois)
 - **opérateurs logiques** : `and` `or` (permettent d'accoler plusieurs expressions booléennes, aka expressions dont la valeur est évaluée à `true` ou `false`)
 - **opérateur de concaténation** : `|` (permet de concaténer le résultat retourné par 2 expressions xpath)
 
